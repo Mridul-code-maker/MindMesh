@@ -1,0 +1,19 @@
+import type { Metadata } from "next";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "MindMesh | AI Agent Data Science Playground",
+  description: "A real-time visual AI pipeline builder and conversational knowledge graph workspace.",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en" className="h-full dark antialiased">
+      <body className="min-h-full flex flex-col">{children}</body>
+    </html>
+  );
+}

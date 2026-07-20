@@ -1,0 +1,66 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  passwordHash String
+  name         String
+  role         String        // Admin | Member
+  createdAt    DateTime      @default(now())
+  datasets     Dataset[]
+  pipelines    Pipeline[]
+  runs         PipelineRun[]
+  logs         ActivityLog[]
+}
+
+model Dataset {
+  id           String        @id @default(uuid())
+  title        String
+  filename     String
+  rowCount     Int
+  columns      String        // JSON stringified array of column objects {name: string, type: string}
+  missingPct   Float         // Average percentage of missing values
+  createdAt    DateTime      @default(now())
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Pipeline {
+  id        String        @id @default(uuid())
+  name      String
+  nodes     String        // JSON stringified array of node configurations
+  edges     String        // JSON stringified array of node connections
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  runs      PipelineRun[]
+}
+
+model PipelineRun {
+  id         String   @id @default(uuid())
+  pipelineId String
+  userId     String
+  status     String   // Success | Failed | Running
+  duration   Int      // in milliseconds
+  logs       String   // JSON stringified array of log objects {time: string, node: string, text: string, type: 'info'|'warning'|'error'}
+  createdAt  DateTime @default(now())
+  pipeline   Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  details   String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

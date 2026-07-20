@@ -1,0 +1,106 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+:root {
+  --font-outfit: 'Outfit', sans-serif;
+  --font-jakarta: 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* HSL Tailored Hues (Teal and Slate Accent Palette) */
+  --bg-primary: 210 20% 98%;
+  --bg-secondary: 0 0% 100%;
+  --bg-tertiary: 215 15% 95%;
+  --border-primary: 214 32% 91%;
+  --text-primary: 222 47% 11%;
+  --text-secondary: 215 16% 47%;
+  --text-muted: 215 16% 65%;
+  
+  --accent-teal: 174 84% 41%;
+  --accent-teal-hover: 174 84% 33%;
+  --accent-cyan: 188 86% 53%;
+
+  --success: 142 71% 45%;
+  --warning: 38 92% 50%;
+  --error: 0 84% 60%;
+}
+
+.dark {
+  --bg-primary: 224 71% 4%;
+  --bg-secondary: 222 47% 7%;
+  --bg-tertiary: 223 47% 11%;
+  --border-primary: 223 47% 14%;
+  --text-primary: 210 40% 98%;
+  --text-secondary: 215 20% 65%;
+  --text-muted: 217 19% 45%;
+  
+  --accent-teal: 174 84% 45%;
+  --accent-teal-hover: 174 84% 38%;
+  --accent-cyan: 188 86% 53%;
+}
+
+body {
+  background-color: hsl(var(--bg-primary));
+  color: hsl(var(--text-primary));
+  font-family: var(--font-jakarta);
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-outfit);
+}
+
+/* Glassmorphism Styles */
+.glass-panel {
+  background: rgba(var(--bg-secondary), 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid hsl(var(--border-primary));
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border-primary));
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--text-muted));
+}
+
+/* Dynamic Radial Grids for AI-themed Canvas */
+.grid-bg {
+  background-size: 24px 24px;
+  background-image: 
+    linear-gradient(to right, hsl(var(--border-primary) / 0.4) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--border-primary) / 0.4) 1px, transparent 1px);
+}
+
+.radial-glow {
+  background: radial-gradient(circle 800px at 50% -100px, hsl(var(--accent-teal) / 0.15), transparent 80%);
+}
+
+/* Pulse Animation for active processing steps */
+@keyframes stepPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0.4rem hsl(var(--accent-teal) / 0.25);
+  }
+  50% {
+    box-shadow: 0 0 0 0.8rem hsl(var(--accent-teal) / 0.05);
+  }
+}
+
+.step-running {
+  animation: stepPulse 1.8s infinite ease-in-out;
+  border-color: hsl(var(--accent-teal));
+}
