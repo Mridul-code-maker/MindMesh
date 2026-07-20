@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { usePipelineStore, GraphNode, GraphEdge, Dataset, LogItem } from '@/store/pipelineStore';
@@ -8,9 +8,17 @@ import {
   Activity, Play, FileText, Database, ShieldAlert, ArrowRight,
   Terminal, Trash2, Download, LogOut, Sun, Moon, Settings as SettingsIcon,
   HelpCircle, User as UserIcon, UploadCloud, ChevronRight, CheckCircle2,
-  FileSpreadsheet, Brain, BarChart3, Edit3, Network, RefreshCw, X
+  FileSpreadsheet, Brain, BarChart3, Edit3, Network, RefreshCw, X, MessageSquare
 } from 'lucide-react';
 import { api, API_BASE } from '@/store/authStore';
+
+// Type helper for projected 3D nodes
+interface ProjectedNode extends GraphNode {
+  screenX: number;
+  screenY: number;
+  projectedZ: number;
+  scale: number;
+}
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -40,6 +48,30 @@ export default function DashboardPage() {
   // Theme state
   const [darkMode, setDarkMode] = useState(true);
 
+  // 3D Canvas state variables
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [angleX, setAngleX] = useState<number>(-0.3);
+  const [angleY, setAngleY] = useState<number>(0.4);
+  const isDragging = useRef<boolean>(false);
+  const startMouse = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const animationFrameId = useRef<number | null>(null);
+
+  // Pre-seeded professional prompts
+  const suggestionPrompts = useMemo(() => [
+    {
+      label: '🧹 Clean Data',
+      text: 'Clean this dataset, fill missing values, and normalize features.'
+    },
+    {
+      label: '📈 Train Regressor',
+      text: 'Train a Random Forest model on this dataset to predict targets.'
+    },
+    {
+      label: '📊 Plot Results',
+      text: 'Generate diagnostic accuracy metrics and plot data trends.'
+    }
+  ], []);
+
   // Fetch initial data
   useEffect(() => {
     initAuth();
@@ -62,11 +94,10 @@ export default function DashboardPage() {
       setActivePipeline(pipelines[0]);
       setupSockets(pipelines[0].id);
       
-      // Seed default chat message
       setChatMessages([
         {
           sender: 'agent',
-          text: `Welcome, ${user?.name || 'Researcher'}. I am your MindMesh Data Science Agent. Ask me to clean your dataset, run AI regression/classification models, or analyze target metrics.`,
+          text: `Welcome, ${user?.name || 'Researcher'}. I am your MindMesh Data Science Agent. Select a dataset, configure nodes, or click one of the suggested cards below to begin.`,
           time: new Date().toLocaleTimeString()
         }
       ]);
@@ -80,6 +111,271 @@ export default function DashboardPage() {
   useEffect(() => {
     consoleBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [liveLogs, chatMessages]);
+
+  // Trigonometric 3D Projection & Canvas Render Loop
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || activeTab !== 'playground' || activeNodes.length === 0) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Handle canvas dimensions
+    const resizeCanvas = () => {
+      const parent = canvas.parentElement;
+      if (parent) {
+        canvas.width = parent.clientWidth;
+        canvas.height = parent.clientHeight;
+      }
+    };
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Track particle animation offset for connections flow
+    let particleOffset = 0;
+
+    const render = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const fov = 350;
+
+      // 1. Calculate projected 3D nodes coordinates
+      const projectedNodes: ProjectedNode[] = activeNodes.map(node => {
+        // Fetch 3D coords or assign default layout in 3D coordinate space
+        let x3d = 0;
+        let y3d = 0;
+        let z3d = 0;
+
+        if (node.type === 'Ingest') { x3d = -160; y3d = -30; z3d = 0; }
+        else if (node.type === 'Preprocess') { x3d = -50; y3d = 40; z3d = 60; }
+        else if (node.type === 'AIModel') { x3d = 50; y3d = -40; z3d = -60; }
+        else if (node.type === 'Output') { x3d = 160; y3d = 30; z3d = 0; }
+
+        // Y-axis rotation
+        let x = x3d * Math.cos(angleY) - z3d * Math.sin(angleY);
+        let z = x3d * Math.sin(angleY) + z3d * Math.cos(angleY);
+        // X-axis rotation
+        let y = y3d * Math.cos(angleX) - z * Math.sin(angleX);
+        z = y3d * Math.sin(angleX) + z * Math.cos(angleX);
+
+        // Perspective Division scaling
+        const scale = fov / (fov + z);
+        const screenX = centerX + x * scale;
+        const screenY = centerY + y * scale;
+
+        return {
+          ...node,
+          screenX,
+          screenY,
+          projectedZ: z,
+          scale
+        };
+      });
+
+      // 2. Draw connections (edges)
+      activeEdges.forEach(edge => {
+        const source = projectedNodes.find(n => n.id === edge.source);
+        const target = projectedNodes.find(n => n.id === edge.target);
+        if (!source || !target) return;
+
+        // Draw curved Bezier path
+        ctx.beginPath();
+        ctx.moveTo(source.screenX, source.screenY);
+        
+        // Calculate control points in 2D perspective
+        const cx1 = source.screenX + (target.screenX - source.screenX) * 0.4;
+        const cy1 = source.screenY;
+        const cx2 = source.screenX + (target.screenX - source.screenX) * 0.6;
+        const cy2 = target.screenY;
+
+        ctx.bezierCurveTo(cx1, cy1, cx2, cy2, target.screenX, target.screenY);
+        ctx.strokeStyle = darkMode ? 'rgba(13, 148, 136, 0.4)' : 'rgba(13, 148, 136, 0.25)';
+        ctx.lineWidth = 2 * ((source.scale + target.scale) / 2);
+        ctx.stroke();
+
+        // Draw flowing glowing particles if pipeline is running
+        if (running) {
+          ctx.save();
+          particleOffset = (particleOffset + 0.005) % 1;
+          const t = particleOffset;
+
+          // Compute Bezier point coordinates for particle positioning
+          const px = (1-t)**3 * source.screenX + 3*(1-t)**2 * t * cx1 + 3*(1-t)*t**2 * cx2 + t**3 * target.screenX;
+          const py = (1-t)**3 * source.screenY + 3*(1-t)**2 * t * cy1 + 3*(1-t)*t**2 * cy2 + t**3 * target.screenY;
+          
+          ctx.beginPath();
+          ctx.arc(px, py, 4 * ((source.scale + target.scale) / 2), 0, Math.PI * 2);
+          ctx.fillStyle = '#0d9488';
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = '#0d9488';
+          ctx.fill();
+          ctx.restore();
+        }
+      });
+
+      // 3. Draw nodes (ordered by depth Z so front nodes overlap back nodes correctly!)
+      const sortedNodes = [...projectedNodes].sort((a, b) => b.projectedZ - a.projectedZ);
+
+      sortedNodes.forEach(node => {
+        const width = 120 * node.scale;
+        const height = 55 * node.scale;
+        const rx = node.screenX - width / 2;
+        const ry = node.screenY - height / 2;
+        const status = activeStepStatuses[node.id] || 'Idle';
+
+        // Draw node container shadow glow if running/active
+        ctx.save();
+        if (status === 'Running') {
+          ctx.shadowBlur = 15;
+          ctx.shadowColor = 'rgba(13, 148, 136, 0.8)';
+        } else if (status === 'Success') {
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = 'rgba(16, 185, 129, 0.4)';
+        } else if (status === 'Failed') {
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = 'rgba(239, 68, 68, 0.4)';
+        } else if (selectedNode?.id === node.id) {
+          ctx.shadowBlur = 12;
+          ctx.shadowColor = 'rgba(13, 148, 136, 0.6)';
+        }
+
+        // Draw Rounded Card
+        ctx.beginPath();
+        ctx.roundRect(rx, ry, width, height, 10 * node.scale);
+        
+        // Dynamic fills depending on status
+        if (status === 'Success') {
+          ctx.fillStyle = darkMode ? 'rgba(16, 185, 129, 0.15)' : 'rgba(16, 185, 129, 0.1)';
+          ctx.strokeStyle = 'rgba(16, 185, 129, 0.8)';
+        } else if (status === 'Failed') {
+          ctx.fillStyle = darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.1)';
+          ctx.strokeStyle = 'rgba(239, 68, 68, 0.8)';
+        } else if (selectedNode?.id === node.id) {
+          ctx.fillStyle = darkMode ? 'rgba(13, 148, 136, 0.15)' : 'rgba(13, 148, 136, 0.08)';
+          ctx.strokeStyle = 'rgba(13, 148, 136, 0.9)';
+        } else {
+          ctx.fillStyle = darkMode ? 'rgba(15, 23, 42, 0.9)' : 'rgba(255, 255, 255, 0.9)';
+          ctx.strokeStyle = darkMode ? 'rgba(51, 65, 85, 0.8)' : 'rgba(226, 232, 240, 0.8)';
+        }
+        ctx.lineWidth = 1.5;
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        // Node Title text
+        ctx.fillStyle = darkMode ? '#f8fafc' : '#0f172a';
+        ctx.font = `bold ${Math.max(8, Math.round(9 * node.scale))}px var(--font-outfit)`;
+        ctx.fillText(node.label, rx + 8 * node.scale, ry + 18 * node.scale);
+
+        // Node Type text
+        ctx.fillStyle = darkMode ? '#94a3b8' : '#64748b';
+        ctx.font = `bold ${Math.max(6, Math.round(7 * node.scale))}px var(--font-jakarta)`;
+        ctx.fillText(node.type.toUpperCase(), rx + 8 * node.scale, ry + 32 * node.scale);
+
+        // Status badge
+        ctx.save();
+        ctx.beginPath();
+        const badgeW = 45 * node.scale;
+        const badgeH = 12 * node.scale;
+        ctx.roundRect(rx + 8 * node.scale, ry + 38 * node.scale, badgeW, badgeH, 3 * node.scale);
+        
+        if (status === 'Success') {
+          ctx.fillStyle = 'rgba(16, 185, 129, 0.15)';
+          ctx.fill();
+          ctx.fillStyle = '#10b981';
+        } else if (status === 'Failed') {
+          ctx.fillStyle = 'rgba(239, 68, 68, 0.15)';
+          ctx.fill();
+          ctx.fillStyle = '#ef4444';
+        } else if (status === 'Running') {
+          ctx.fillStyle = 'rgba(13, 148, 136, 0.15)';
+          ctx.fill();
+          ctx.fillStyle = '#0d9488';
+        } else {
+          ctx.fillStyle = darkMode ? 'rgba(51, 65, 85, 0.3)' : 'rgba(226, 232, 240, 0.5)';
+          ctx.fill();
+          ctx.fillStyle = darkMode ? '#94a3b8' : '#64748b';
+        }
+
+        ctx.font = `bold ${Math.max(6, Math.round(6.5 * node.scale))}px var(--font-jakarta)`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(status, rx + 8 * node.scale + badgeW / 2, ry + 38 * node.scale + badgeH / 2);
+        ctx.restore();
+      });
+
+      // Save projected coordinates globally on canvas window for click-detection
+      (canvas as any).projectedNodes = projectedNodes;
+
+      // Keep rotating slowly if not dragging
+      if (!isDragging.current && !running) {
+        setAngleY(prev => prev + 0.001);
+      }
+
+      animationFrameId.current = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
+      }
+    };
+  }, [activeNodes, activeEdges, angleX, angleY, activeStepStatuses, running, selectedNode, darkMode, activeTab]);
+
+  // Drag-to-Rotate handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    isDragging.current = true;
+    startMouse.current = { x: e.clientX, y: e.clientY };
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging.current) return;
+    const dx = e.clientX - startMouse.current.x;
+    const dy = e.clientY - startMouse.current.y;
+
+    setAngleY(prev => prev + dx * 0.006);
+    setAngleX(prev => prev + dy * 0.006);
+
+    startMouse.current = { x: e.clientX, y: e.clientY };
+  };
+
+  const handleMouseUpOrLeave = () => {
+    isDragging.current = false;
+  };
+
+  // Click-Hit node detection
+  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    const projectedNodes: ProjectedNode[] = (canvas as any).projectedNodes || [];
+    
+    // Check click collision closest to camera (largest Z index)
+    const sorted = [...projectedNodes].sort((a, b) => a.projectedZ - b.projectedZ);
+    
+    const clicked = sorted.find(node => {
+      const width = 120 * node.scale;
+      const height = 55 * node.scale;
+      const rx = node.screenX - width / 2;
+      const ry = node.screenY - height / 2;
+
+      return mx >= rx && mx <= rx + width && my >= ry && my <= ry + height;
+    });
+
+    if (clicked) {
+      setSelectedNode(clicked);
+    } else {
+      setSelectedNode(null);
+    }
+  };
 
   const handleFileUpload = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,7 +408,6 @@ export default function DashboardPage() {
     
     let datasetId = selectedDatasetId;
     
-    // If no dataset dropdown chosen, check if Ingest node has one
     const ingest = activeNodes.find(n => n.type === 'Ingest');
     if (!datasetId && ingest?.properties?.datasetId) {
       datasetId = ingest.properties.datasetId;
@@ -123,7 +418,6 @@ export default function DashboardPage() {
       return;
     }
 
-    // Add user chat log
     setChatMessages(prev => [
       ...prev,
       {
@@ -133,7 +427,6 @@ export default function DashboardPage() {
       }
     ]);
 
-    // Add agent thinking loader
     setChatMessages(prev => [
       ...prev,
       {
@@ -177,7 +470,6 @@ export default function DashboardPage() {
       { sender: 'user', text: userMsg, time: new Date().toLocaleTimeString() }
     ]);
 
-    // Simple parser mock simulating LLM instructions
     setTimeout(() => {
       const lower = userMsg.toLowerCase();
       let response = '';
@@ -217,7 +509,6 @@ export default function DashboardPage() {
     });
     if (activePipeline) {
       updatePipeline(activePipeline.id, undefined, updatedNodes, undefined);
-      // Synchronize locally selected node properties panel
       const target = updatedNodes.find(n => n.id === nodeId);
       if (target) setSelectedNode(target);
     }
@@ -447,7 +738,7 @@ export default function DashboardPage() {
               {/* Left Panel: Chat Console & Live Logger */}
               <div className="w-full xl:w-96 border-r border-slate-200 dark:border-slate-800 bg-white/30 dark:bg-slate-900/10 flex flex-col shrink-0 min-h-[350px] xl:min-h-0">
                 {/* Chat window */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[400px] xl:max-h-none">
+                <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[300px] xl:max-h-none">
                   {chatMessages.map((msg, i) => (
                     <div key={i} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
                       <div className={`p-3 rounded-xl max-w-[85%] text-xs leading-relaxed ${
@@ -483,13 +774,35 @@ export default function DashboardPage() {
                   )}
                 </div>
 
+                {/* Prompt Card Suggestion Deck */}
+                <div className="px-3 py-2 border-t border-slate-200 dark:border-slate-850/80 bg-slate-50 dark:bg-slate-900/10 shrink-0">
+                  <span className="text-[8px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1 mb-1.5">
+                    <MessageSquare size={9} />
+                    Suggested AI Prompt Cards
+                  </span>
+                  <div className="flex gap-2 overflow-x-auto pb-1">
+                    {suggestionPrompts.map((card, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => {
+                          setChatInput(card.text);
+                        }}
+                        className="px-2.5 py-1.5 text-[10px] font-bold rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:border-teal-500/50 hover:bg-slate-100 dark:hover:bg-slate-850 shrink-0 cursor-pointer transition-all"
+                      >
+                        {card.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 {/* Prompt Message bar */}
                 <form onSubmit={handleChatSubmit} className="p-3 border-t border-slate-200 dark:border-slate-850 flex gap-2 bg-white dark:bg-slate-900/20 shrink-0">
                   <input
                     type="text"
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
-                    placeholder="Ask Agent to run regression..."
+                    placeholder="Ask Agent to clean data..."
                     className="flex-1 px-3 py-2 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-teal-500 text-xs outline-none text-slate-900 dark:text-slate-100"
                   />
                   <button
@@ -501,101 +814,25 @@ export default function DashboardPage() {
                 </form>
               </div>
 
-              {/* Right Panel: Interactive Node Graph Panel */}
+              {/* Right Panel: Interactive 3D Canvas Graph Panel */}
               <div className="flex-1 flex flex-col lg:flex-row relative grid-bg min-w-0">
-                {/* SVG Graph Drawing Layer */}
+                {/* 3D Canvas Visualizer */}
                 <div className="flex-1 relative min-h-[400px]">
-                  <svg className="w-full h-full min-h-[400px]">
-                    <defs>
-                      <marker id="arrow" viewBox="0 0 10 10" refX="28" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#0d9488" />
-                      </marker>
-                    </defs>
+                  <canvas
+                    ref={canvasRef}
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUpOrLeave}
+                    onMouseLeave={handleMouseUpOrLeave}
+                    onClick={handleCanvasClick}
+                    className="w-full h-full min-h-[400px] cursor-grab active:cursor-grabbing block"
+                    title="Drag to rotate 3D node network"
+                  />
 
-                    {/* Edge connections paths */}
-                    {activeEdges.map((edge, idx) => {
-                      const sourceNode = activeNodes.find(n => n.id === edge.source);
-                      const targetNode = activeNodes.find(n => n.id === edge.target);
-                      if (!sourceNode || !targetNode) return null;
-                      
-                      // Node Width = 150px, Height = 60px
-                      const x1 = sourceNode.x + 150;
-                      const y1 = sourceNode.y + 30;
-                      const x2 = targetNode.x;
-                      const y2 = targetNode.y + 30;
-
-                      // Control point for smooth curved bezier curves
-                      const cx1 = x1 + 50;
-                      const cy1 = y1;
-                      const cx2 = x2 - 50;
-                      const cy2 = y2;
-
-                      return (
-                        <g key={idx}>
-                          <path
-                            d={`M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}`}
-                            fill="none"
-                            stroke="#0d9488"
-                            strokeWidth="2"
-                            strokeDasharray={running ? '5,5' : '0'}
-                            className={running ? 'animate-marquee' : ''}
-                            markerEnd="url(#arrow)"
-                          />
-                        </g>
-                      );
-                    })}
-
-                    {/* Node shapes inside SVG foreignObject for custom HTML buttons */}
-                    {activeNodes.map((node) => {
-                      const status = activeStepStatuses[node.id] || 'Idle';
-                      
-                      return (
-                        <foreignObject
-                          key={node.id}
-                          x={node.x}
-                          y={node.y}
-                          width="160"
-                          height="75"
-                        >
-                          <button
-                            onClick={() => setSelectedNode(node)}
-                            className={`w-full h-[62px] text-left p-2.5 rounded-xl border flex flex-col justify-between transition-all select-none shadow-md cursor-pointer ${
-                              status === 'Running' ? 'step-running' : ''
-                            } ${
-                              status === 'Success' ? 'border-emerald-500/80 bg-emerald-950/20 text-emerald-300' :
-                              status === 'Failed' ? 'border-red-500/80 bg-red-950/20 text-red-300' :
-                              selectedNode?.id === node.id ? 'border-teal-500 bg-teal-500/5 text-teal-400' :
-                              'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-700'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between w-full">
-                              <span className="text-[10px] font-black tracking-tight font-outfit uppercase truncate pr-1">
-                                {node.label}
-                              </span>
-                              {node.type === 'Ingest' && <Database size={12} className="text-teal-500" />}
-                              {node.type === 'Preprocess' && <Edit3 size={12} className="text-teal-500" />}
-                              {node.type === 'AIModel' && <Brain size={12} className="text-teal-500" />}
-                              {node.type === 'Output' && <BarChart3 size={12} className="text-teal-500" />}
-                            </div>
-
-                            <div className="flex items-center justify-between w-full">
-                              <span className="text-[8px] uppercase tracking-wider font-extrabold text-slate-400">
-                                {node.type}
-                              </span>
-                              <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded ${
-                                status === 'Success' ? 'bg-emerald-500/10 text-emerald-400' :
-                                status === 'Failed' ? 'bg-red-500/10 text-red-400' :
-                                status === 'Running' ? 'bg-teal-500/10 text-teal-400 animate-pulse' :
-                                'bg-slate-100 dark:bg-slate-850 text-slate-400'
-                              }`}>
-                                {status}
-                              </span>
-                            </div>
-                          </button>
-                        </foreignObject>
-                      );
-                    })}
-                  </svg>
+                  {/* 3D Perspective Rotation Tutorial Overlay Tip */}
+                  <div className="absolute bottom-3 left-3 px-2 py-1 rounded bg-slate-900/60 backdrop-blur border border-slate-800/80 text-[8px] font-bold uppercase tracking-wider text-slate-400 pointer-events-none select-none">
+                    Drag mouse to rotate pipeline in 3D
+                  </div>
                 </div>
 
                 {/* Node Property panel / Slide-out drawer on click */}
@@ -847,9 +1084,9 @@ export default function DashboardPage() {
                         <div className="overflow-x-auto border border-slate-150 dark:border-slate-850 rounded-xl">
                           <table className="w-full border-collapse text-[10px]">
                             <thead>
-                              <tr className="bg-slate-100 dark:bg-slate-950 text-slate-500 font-bold uppercase tracking-wider">
+                              <tr className="bg-slate-100 dark:bg-slate-950 text-slate-500 font-bold uppercase tracking-wider text-left border-b border-slate-200 dark:border-slate-800">
                                 {viewingDataset.columns.map((c: any, i: number) => (
-                                  <th key={i} className="px-4 py-2 text-left border-b border-slate-200 dark:border-slate-800">{c.name}</th>
+                                  <th key={i} className="px-4 py-2 border-b border-slate-200 dark:border-slate-800">{c.name}</th>
                                 ))}
                               </tr>
                             </thead>
