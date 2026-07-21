@@ -85,6 +85,16 @@ export default function DashboardPage() {
     }
   ], []);
 
+  // Sync theme selection on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'light') {
+      setDarkMode(false);
+    } else if (saved === 'dark') {
+      setDarkMode(true);
+    }
+  }, []);
+
   // Fetch initial data
   useEffect(() => {
     initAuth();
@@ -793,6 +803,23 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Theme Toggle Button */}
+            <button
+              onClick={() => {
+                const newMode = !darkMode;
+                setDarkMode(newMode);
+                localStorage.setItem('theme', newMode ? 'dark' : 'light');
+              }}
+              title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              className={`h-8.5 w-8.5 rounded-lg border flex items-center justify-center cursor-pointer transition-all ${
+                darkMode 
+                  ? 'border-slate-850 bg-slate-900 text-amber-400 hover:bg-slate-800' 
+                  : 'border-slate-200 bg-slate-50 text-indigo-600 hover:bg-slate-100 shadow-sm'
+              }`}
+            >
+              {darkMode ? <Sun size={13} /> : <Moon size={13} />}
+            </button>
+
             {/* Real-time Connection Status Dot */}
             <div 
               className={`flex items-center gap-1.5 px-2.5 h-8.5 rounded-lg border text-[10px] font-bold select-none cursor-help ${
