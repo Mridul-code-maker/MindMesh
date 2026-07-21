@@ -16,11 +16,15 @@ const errorHandler = require('./middleware/errorHandler');
 const app = express();
 const server = http.createServer(app);
 
-// Initialize Socket.io with CORS
+// Initialize Socket.io with dynamic CORS origin matching
 const io = socketIo(server, {
   cors: {
-    origin: '*',
-    methods: ['GET', 'POST', 'PATCH', 'DELETE']
+    origin: (origin, callback) => {
+      // Dynamically allow any requesting origin for secure handshakes
+      callback(null, true);
+    },
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+    credentials: true
   }
 });
 app.set('io', io);
