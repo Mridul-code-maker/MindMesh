@@ -365,19 +365,19 @@ print("Performance visualization report saved as 'performance_report.png'.")
         let y3d = (node.y !== undefined && node.y !== 0) ? node.y : 0;
 
         // Clamp coordinates to safe range to handle previously out-of-bounds saved values
-        x3d = Math.max(-150, Math.min(150, x3d));
-        y3d = Math.max(-100, Math.min(100, y3d));
+        x3d = Math.max(-260, Math.min(260, x3d));
+        y3d = Math.max(-180, Math.min(180, y3d));
         let z3d = 0;
 
         if (x3d === 0 && y3d === 0) {
-          if (node.type === 'Ingest') { x3d = -130; y3d = -20; z3d = 0; }
-          else if (node.type === 'Preprocess') { x3d = -40; y3d = 30; z3d = 40; }
-          else if (node.type === 'AIModel') { x3d = 40; y3d = -30; z3d = -40; }
-          else if (node.type === 'Output') { x3d = 130; y3d = 20; z3d = 0; }
+          if (node.type === 'Ingest') { x3d = -180; y3d = -30; z3d = 0; }
+          else if (node.type === 'Preprocess') { x3d = -60; y3d = 40; z3d = 60; }
+          else if (node.type === 'AIModel') { x3d = 60; y3d = -40; z3d = -60; }
+          else if (node.type === 'Output') { x3d = 180; y3d = 30; z3d = 0; }
         } else {
           if (node.type === 'Ingest') { z3d = 0; }
-          else if (node.type === 'Preprocess') { z3d = 40; }
-          else if (node.type === 'AIModel') { z3d = -40; }
+          else if (node.type === 'Preprocess') { z3d = 60; }
+          else if (node.type === 'AIModel') { z3d = -60; }
           else if (node.type === 'Output') { z3d = 0; }
         }
         return { node, x3d, y3d, z3d };
@@ -617,15 +617,15 @@ print("Performance visualization report saved as 'performance_report.png'.")
       const node = activeNodes.find(n => n.id === draggedNodeId.current);
       if (node) {
         // Calculate original coordinates
-        const currentX = (node.x !== undefined && node.x !== 0) ? node.x : (node.type === 'Ingest' ? -130 : node.type === 'Preprocess' ? -40 : node.type === 'AIModel' ? 40 : 130);
-        const currentY = (node.y !== undefined && node.y !== 0) ? node.y : (node.type === 'Ingest' ? -20 : node.type === 'Preprocess' ? 30 : node.type === 'AIModel' ? -30 : 20);
+        const currentX = (node.x !== undefined && node.x !== 0) ? node.x : (node.type === 'Ingest' ? -180 : node.type === 'Preprocess' ? -60 : node.type === 'AIModel' ? 60 : 180);
+        const currentY = (node.y !== undefined && node.y !== 0) ? node.y : (node.type === 'Ingest' ? -30 : node.type === 'Preprocess' ? 40 : node.type === 'AIModel' ? -40 : 30);
         
         // Clamp current positions to safe coordinates range
-        const clampedCurrentX = Math.max(-150, Math.min(150, currentX));
-        const clampedCurrentY = Math.max(-100, Math.min(100, currentY));
+        const clampedCurrentX = Math.max(-260, Math.min(260, currentX));
+        const clampedCurrentY = Math.max(-180, Math.min(180, currentY));
 
-        const newX = Math.max(-150, Math.min(150, clampedCurrentX + dx * 1.0));
-        const newY = Math.max(-100, Math.min(100, clampedCurrentY + dy * 1.0));
+        const newX = Math.max(-260, Math.min(260, clampedCurrentX + dx * 1.0));
+        const newY = Math.max(-180, Math.min(180, clampedCurrentY + dy * 1.0));
         
         // Optimistic UI update in the store (persist = false to avoid flood api calls)
         updateNodePosition(node.id, newX, newY, false);
