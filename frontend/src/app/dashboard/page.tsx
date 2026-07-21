@@ -366,14 +366,14 @@ print("Performance visualization report saved as 'performance_report.png'.")
         let z3d = 0;
 
         if (x3d === 0 && y3d === 0) {
-          if (node.type === 'Ingest') { x3d = -160; y3d = -30; z3d = 0; }
-          else if (node.type === 'Preprocess') { x3d = -50; y3d = 40; z3d = 60; }
-          else if (node.type === 'AIModel') { x3d = 50; y3d = -40; z3d = -60; }
-          else if (node.type === 'Output') { x3d = 160; y3d = 30; z3d = 0; }
+          if (node.type === 'Ingest') { x3d = -130; y3d = -20; z3d = 0; }
+          else if (node.type === 'Preprocess') { x3d = -40; y3d = 30; z3d = 40; }
+          else if (node.type === 'AIModel') { x3d = 40; y3d = -30; z3d = -40; }
+          else if (node.type === 'Output') { x3d = 130; y3d = 20; z3d = 0; }
         } else {
           if (node.type === 'Ingest') { z3d = 0; }
-          else if (node.type === 'Preprocess') { z3d = 60; }
-          else if (node.type === 'AIModel') { z3d = -60; }
+          else if (node.type === 'Preprocess') { z3d = 40; }
+          else if (node.type === 'AIModel') { z3d = -40; }
           else if (node.type === 'Output') { z3d = 0; }
         }
         return { node, x3d, y3d, z3d };
@@ -404,8 +404,9 @@ print("Performance visualization report saved as 'performance_report.png'.")
         let y = ry * Math.cos(angleX.current) - z * Math.sin(angleX.current);
         z = ry * Math.sin(angleX.current) + z * Math.cos(angleX.current);
 
-        // Perspective Division scaling with camera zoom
-        const scale = (fov / (fov + z)) * cameraZoom.current;
+        // Perspective Division scaling with camera zoom and responsive width factor
+        const widthFactor = Math.max(0.4, Math.min(1.0, canvas.width / 900));
+        const scale = (fov / (fov + z)) * cameraZoom.current * widthFactor;
         const screenX = centerX + x * scale;
         const screenY = centerY + y * scale;
 
