@@ -106,8 +106,10 @@ router.post('/:id/run', async (req, res, next) => {
     }
   };
 
+  let pipeline = null;
+
   try {
-    const pipeline = await prisma.pipeline.findUnique({
+    pipeline = await prisma.pipeline.findUnique({
       where: { id: req.params.id }
     });
 
@@ -254,15 +256,20 @@ router.post('/:id/run', async (req, res, next) => {
 
     // Mark Pipeline Execution Run as Success
     const totalDuration = Date.now() - startTime;
-    await prisma.pipelineRun.create({
-      data: {
-        pipelineId: pipeline.id,
-        userId: req.userId,
-        status: 'Success',
-        duration: totalDuration,
-        logs: JSON.stringify(runLogs)
-      }
-    });
+    try {
+      await prisma.pipelineRun.create({
+        data: {
+          pipelineId: pipeline.id,
+          userId: req.userId,
+          status: 'Success',
+          duration: totalDuration,
+          logs: JSON.stringify(runLogs)
+        }
+      });
+    } catch (dbErr) {
+      console.error('Failed to log success run to DB:', dbErr);
+      addLog('Warning', 'Could not save execution run history log to database, but pipeline completed successfully.', 'warning');
+    }
 
     addLog('System', `Pipeline completed execution successfully in ${totalDuration}ms.`);
     res.json({
@@ -284,15 +291,21 @@ router.post('/:id/run', async (req, res, next) => {
     emitStepStatus('all', 'Failed', { errorMessage: err.message });
 
     const totalDuration = Date.now() - startTime;
-    await prisma.pipelineRun.create({
-      data: {
-        pipelineId: req.params.id,
-        userId: req.userId,
-        status: 'Failed',
-        duration: totalDuration,
-        logs: JSON.stringify(runLogs)
+    if (pipeline && pipeline.id) {
+      try {
+        await prisma.pipelineRun.create({
+          data: {
+            pipelineId: pipeline.id,
+            userId: req.userId,
+            status: 'Failed',
+            duration: totalDuration,
+            logs: JSON.stringify(runLogs)
+          }
+        });
+      } catch (dbErr) {
+        console.error('Failed to log failed run to DB:', dbErr);
       }
-    });
+    }
 
     res.status(200).json({
       success: false,

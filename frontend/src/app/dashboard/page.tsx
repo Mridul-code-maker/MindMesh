@@ -62,8 +62,8 @@ export default function DashboardPage() {
 
   // 3D Canvas state variables
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [angleX, setAngleX] = useState<number>(-0.3);
-  const [angleY, setAngleY] = useState<number>(0.4);
+  const angleX = useRef<number>(-0.3);
+  const angleY = useRef<number>(0.4);
   const [spinSpeed, setSpinSpeed] = useState<'off' | 'slow' | 'fast'>('slow');
   const isDragging = useRef<boolean>(false);
   const startMouse = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -173,11 +173,11 @@ export default function DashboardPage() {
         else if (node.type === 'Output') { x3d = 160; y3d = 30; z3d = 0; }
 
         // Y-axis rotation
-        let x = x3d * Math.cos(angleY) - z3d * Math.sin(angleY);
-        let z = x3d * Math.sin(angleY) + z3d * Math.cos(angleY);
+        let x = x3d * Math.cos(angleY.current) - z3d * Math.sin(angleY.current);
+        let z = x3d * Math.sin(angleY.current) + z3d * Math.cos(angleY.current);
         // X-axis rotation
-        let y = y3d * Math.cos(angleX) - z * Math.sin(angleX);
-        z = y3d * Math.sin(angleX) + z * Math.cos(angleX);
+        let y = y3d * Math.cos(angleX.current) - z * Math.sin(angleX.current);
+        z = y3d * Math.sin(angleX.current) + z * Math.cos(angleX.current);
 
         // Perspective Division scaling
         const scale = fov / (fov + z);
@@ -331,9 +331,7 @@ export default function DashboardPage() {
       // Keep rotating slowly if not dragging
       if (!isDragging.current && !running) {
         const step = spinSpeed === 'slow' ? 0.001 : spinSpeed === 'fast' ? 0.004 : 0;
-        if (step > 0) {
-          setAngleY(prev => prev + step);
-        }
+        angleY.current += step;
       }
 
       animationFrameId.current = requestAnimationFrame(render);
@@ -347,7 +345,7 @@ export default function DashboardPage() {
         cancelAnimationFrame(animationFrameId.current);
       }
     };
-  }, [activeNodes, activeEdges, angleX, angleY, activeStepStatuses, running, selectedNode, darkMode, activeTab, spinSpeed]);
+  }, [activeNodes, activeEdges, activeStepStatuses, running, selectedNode, darkMode, activeTab, spinSpeed]);
 
   // Drag-to-Rotate handlers
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -360,8 +358,8 @@ export default function DashboardPage() {
     const dx = e.clientX - startMouse.current.x;
     const dy = e.clientY - startMouse.current.y;
 
-    setAngleY(prev => prev + dx * 0.006);
-    setAngleX(prev => prev + dy * 0.006);
+    angleY.current += dx * 0.006;
+    angleX.current += dy * 0.006;
 
     startMouse.current = { x: e.clientX, y: e.clientY };
   };
@@ -981,8 +979,8 @@ export default function DashboardPage() {
                     {/* Reset button */}
                     <button 
                       onClick={() => {
-                        setAngleX(-0.3);
-                        setAngleY(0.4);
+                        angleX.current = -0.3;
+                        angleY.current = 0.4;
                       }}
                       title="Reset Camera Angle"
                       className={`p-1.5 rounded-lg border text-[9px] font-extrabold uppercase tracking-wide flex items-center gap-1 transition-all cursor-pointer ${
