@@ -92,7 +92,6 @@ export default function DashboardPage() {
   useEffect(() => {
     if (pipelines.length > 0 && !activePipeline) {
       setActivePipeline(pipelines[0]);
-      setupSockets(pipelines[0].id);
       
       setChatMessages([
         {
@@ -102,10 +101,17 @@ export default function DashboardPage() {
         }
       ]);
     }
-    return () => {
-      cleanupSockets();
-    };
-  }, [pipelines, activePipeline, setActivePipeline, setupSockets, cleanupSockets, user]);
+  }, [pipelines, activePipeline, setActivePipeline, user]);
+
+  // Manage WebSockets connection lifecycle
+  useEffect(() => {
+    if (activePipeline) {
+      setupSockets(activePipeline.id);
+      return () => {
+        cleanupSockets();
+      };
+    }
+  }, [activePipeline, setupSockets, cleanupSockets]);
 
   // Scroll console to bottom on logs
   useEffect(() => {
