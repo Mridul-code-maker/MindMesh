@@ -783,11 +783,12 @@ export default function DashboardPage() {
           darkMode ? 'border-slate-900 bg-slate-950/80' : 'border-slate-200 bg-white/80'
         } backdrop-blur-md px-6 flex items-center justify-between shrink-0`}>
           <div className="flex items-center gap-2.5">
-            <h3 className={`font-extrabold text-sm tracking-tight ${darkMode ? 'text-slate-100' : 'text-slate-800'}`}>
+            <h3 className={`font-extrabold text-sm tracking-tight ${darkMode ? 'text-slate-100' : 'text-slate-900'}`}>
               {activeTab === 'playground' && `MindMesh Sandbox Playground — ${activePipeline?.name || 'Workspace'}`}
               {activeTab === 'datasets' && 'Data Ingestion & profiling Registry'}
               {activeTab === 'runs' && 'Historical Pipeline Executions Log'}
               {activeTab === 'settings' && 'Workspace Configuration Console'}
+              {activeTab === 'deployments' && 'MLOps Serving Console'}
             </h3>
           </div>
 
@@ -1631,7 +1632,7 @@ export default function DashboardPage() {
               
               {/* Header Details */}
               <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
-                <h3 className="font-black text-lg text-slate-800 dark:text-white flex items-center gap-2">
+                <h3 className={`font-black text-lg flex items-center gap-2 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
                   <Activity className="text-teal-500 animate-pulse" size={20} />
                   MLOps Live Model Serving Console
                 </h3>
@@ -1714,9 +1715,9 @@ export default function DashboardPage() {
                       }`}>
                         
                         {/* Title details */}
-                        <div className="flex items-center justify-between border-b border-slate-850 pb-3">
+                        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
                           <div>
-                            <h4 className="font-extrabold text-sm text-slate-100 uppercase tracking-wide">Live API Test Client</h4>
+                            <h4 className={`font-extrabold text-sm uppercase tracking-wide ${darkMode ? 'text-slate-100' : 'text-slate-900'}`}>Live API Test Client</h4>
                             <p className="text-[10px] text-slate-400 font-medium">Verify deployment predictions with dynamic JSON requests</p>
                           </div>
                           <span className="text-[9px] font-mono text-slate-500 uppercase font-extrabold">POST Endpoint</span>
