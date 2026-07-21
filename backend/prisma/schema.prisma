@@ -64,3 +64,13 @@ model ActivityLog {
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+model Deployment {
+  id          String   @id @default(uuid())
+  runId       String   @unique
+  status      String   // Active | Suspended
+  modelName   String
+  datasetName String
+  columns     String   // JSON stringified array of column strings
+  createdAt   DateTime @default(now())
+}

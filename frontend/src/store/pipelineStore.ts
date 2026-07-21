@@ -65,6 +65,7 @@ interface PipelineState {
   running: boolean;
   socket: Socket | null;
   socketConnected: boolean;
+  deployments: any[];
   
   fetchDatasets: () => Promise<void>;
   uploadDataset: (formData: FormData) => Promise<boolean>;
@@ -76,6 +77,12 @@ interface PipelineState {
   setupSockets: (pipelineId: string) => void;
   cleanupSockets: () => void;
   setActivePipeline: (pipeline: Pipeline | null) => void;
+  fetchDeployments: () => Promise<void>;
+  deployModel: (runId: string) => Promise<boolean>;
+  suspendDeployment: (id: string) => Promise<boolean>;
+  addNode: (node: GraphNode) => void;
+  deleteNode: (nodeId: string) => void;
+  addEdge: (edge: GraphEdge) => void;
 }
 
 export const usePipelineStore = create<PipelineState>((set, get) => ({
@@ -90,6 +97,38 @@ export const usePipelineStore = create<PipelineState>((set, get) => ({
   running: false,
   socket: null,
   socketConnected: false,
+  deployments: [],
+
+  fetchDeployments: async () => {
+    try {
+      const res = await api.get('/api/v1/deployments');
+      set({ deployments: res.data.data });
+    } catch (err) {
+      console.error('Failed to load deployments:', err);
+    }
+  },
+
+  deployModel: async (runId) => {
+    try {
+      await api.post('/api/v1/deployments', { runId });
+      get().fetchDeployments();
+      return true;
+    } catch (err) {
+      console.error('Failed to deploy model:', err);
+      return false;
+    }
+  },
+
+  suspendDeployment: async (id) => {
+    try {
+      await api.delete(`/api/v1/deployments/${id}`);
+      get().fetchDeployments();
+      return true;
+    } catch (err) {
+      console.error('Failed to suspend deployment:', err);
+      return false;
+    }
+  },
 
   fetchDatasets: async () => {
     try {
@@ -263,5 +302,32 @@ export const usePipelineStore = create<PipelineState>((set, get) => ({
     } else {
       set({ activePipeline: null, activeNodes: [], activeEdges: [] });
     }
-  }
+  },
+
+  addNode: (node) => {
+    const { activePipeline, activeNodes, activeEdges, updatePipeline } = get();
+    if (!activePipeline) return;
+    const newNodes = [...activeNodes, node];
+    set({ activeNodes: newNodes });
+    updatePipeline(activePipeline.id, undefined, newNodes, activeEdges);
+  },
+
+  deleteNode: (nodeId) => {
+    const { activePipeline, activeNodes, activeEdges, updatePipeline } = get();
+    if (!activePipeline) return;
+    const newNodes = activeNodes.filter(n => n.id !== nodeId);
+    const newEdges = activeEdges.filter(e => e.source !== nodeId && e.target !== nodeId);
+    set({ activeNodes: newNodes, activeEdges: newEdges });
+    updatePipeline(activePipeline.id, undefined, newNodes, newEdges);
+  },
+
+  addEdge: (edge) => {
+    const { activePipeline, activeNodes, activeEdges, updatePipeline } = get();
+    if (!activePipeline) return;
+    const exists = activeEdges.some(e => e.source === edge.source && e.target === edge.target);
+    if (exists) return;
+    const newEdges = [...activeEdges, edge];
+    set({ activeEdges: newEdges });
+    updatePipeline(activePipeline.id, undefined, activeNodes, newEdges);
+  },
 }));

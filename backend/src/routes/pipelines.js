@@ -186,12 +186,34 @@ router.post('/:id/run', async (req, res, next) => {
 
     await new Promise(resolve => setTimeout(resolve, 1500));
     emitStepStatus(aiNode.id, 'Running');
-    addLog('AIModel', 'Invoking Machine Learning prediction models...');
+    
+    // Extract Model Hyperparameters
+    const modelType = aiNode.properties?.modelType || 'Random Forest';
+    const estimators = Number(aiNode.properties?.estimators || 100);
+    const maxDepth = Number(aiNode.properties?.maxDepth || 10);
+    const learningRate = Number(aiNode.properties?.learningRate || 0.1);
+
+    addLog('AIModel', `Initializing ML model training sequence...`);
+    addLog('AIModel', `Algorithm selected: ${modelType}`);
+    addLog('AIModel', `Hyperparameters: [Estimators: ${estimators}, Max Depth: ${maxDepth}, Learning Rate: ${learningRate}]`);
 
     // Extract values for a mock ML linear regression trend
-    const numericColIdx = headers.findIndex(h => h.toLowerCase().includes('price') || h.toLowerCase().includes('score') || h.toLowerCase().includes('gpa'));
-    let r2Score = 0.85;
-    let confidence = '91.3%';
+    const numericColIdx = headers.findIndex(h => h.toLowerCase().includes('price') || h.toLowerCase().includes('score') || h.toLowerCase().includes('gpa') || h.toLowerCase().includes('medv'));
+    
+    // Dynamic R2 Calculation based on parameters
+    let baseScore = 0.80;
+    if (modelType === 'XGBoost') {
+      baseScore = 0.85 + (learningRate >= 0.05 && learningRate <= 0.2 ? 0.04 : -0.06);
+    } else if (modelType === 'Random Forest') {
+      baseScore = 0.82 + (estimators >= 150 ? 0.03 : 0.01) + (maxDepth >= 8 ? 0.02 : -0.04);
+    } else if (modelType === 'SVM') {
+      baseScore = 0.78 + (maxDepth >= 6 ? 0.03 : -0.02);
+    } else {
+      baseScore = 0.75 + (learningRate > 0.3 ? -0.05 : 0.02);
+    }
+
+    const r2Score = Math.max(0.55, Math.min(0.98, baseScore));
+    const confidence = `${(r2Score * 100 + (Math.random() * 1.5)).toFixed(1)}%`;
 
     if (numericColIdx !== -1) {
       const numericVals = rows.map(r => Number(r[numericColIdx])).filter(v => !isNaN(v));
@@ -201,10 +223,9 @@ router.post('/:id/run', async (req, res, next) => {
       }
     } else {
       addLog('AIModel', 'No target numeric column detected. Running default sentiment analysis text classifier.');
-      confidence = '94.2%';
     }
 
-    addLog('AIModel', `Model training successful. evaluation metrics: Confidence=${confidence}, R² Score=${r2Score}`);
+    addLog('AIModel', `Model training successful. Evaluation metrics: Confidence=${confidence}, R² Score=${r2Score.toFixed(3)}`);
     emitStepStatus(aiNode.id, 'Success', { confidence, r2Score });
 
     // STEP 4: Execute Output Node

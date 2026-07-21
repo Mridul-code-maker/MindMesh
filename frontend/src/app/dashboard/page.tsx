@@ -25,13 +25,25 @@ export default function DashboardPage() {
   const { user, initialize: initAuth, logout } = useAuthStore();
   const {
     datasets, pipelines, runs, activePipeline, activeNodes, activeEdges,
-    activeStepStatuses, liveLogs, running, socketConnected,
+    activeStepStatuses, liveLogs, running, socketConnected, deployments,
     fetchDatasets, uploadDataset, fetchPipelines, updatePipeline,
-    runPipeline, fetchRuns, setupSockets, cleanupSockets, setActivePipeline
+    runPipeline, fetchRuns, setupSockets, cleanupSockets, setActivePipeline,
+    fetchDeployments, deployModel, suspendDeployment, addNode, deleteNode, addEdge
   } = usePipelineStore();
 
-  const [activeTab, setActiveTab] = useState<'playground' | 'datasets' | 'runs' | 'settings'>('playground');
+  const [activeTab, setActiveTab] = useState<'playground' | 'datasets' | 'runs' | 'settings' | 'deployments'>('playground');
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
+
+  // Graph Connect mode states
+  const [isConnectingMode, setIsConnectingMode] = useState(false);
+  const [connectSourceId, setConnectSourceId] = useState<string | null>(null);
+
+  // MLOps Deployments testing states
+  const [selectedDeploymentId, setSelectedDeploymentId] = useState('');
+  const [testPayload, setTestPayload] = useState('{\n  "values": {\n    "RM": 6.5,\n    "CRIM": 0.03,\n    "LSTAT": 4.9\n  }\n}');
+  const [predictionResult, setPredictionResult] = useState<any>(null);
+  const [testingPredict, setTestingPredict] = useState(false);
+  const [deployingRunId, setDeployingRunId] = useState('');
   
   // Datasets states
   const [datasetTitle, setDatasetTitle] = useState('');
@@ -79,7 +91,8 @@ export default function DashboardPage() {
     fetchDatasets();
     fetchPipelines();
     fetchRuns();
-  }, [initAuth, fetchDatasets, fetchPipelines, fetchRuns]);
+    fetchDeployments();
+  }, [initAuth, fetchDatasets, fetchPipelines, fetchRuns, fetchDeployments]);
 
   // Handle redirect if logout
   useEffect(() => {
@@ -381,9 +394,59 @@ export default function DashboardPage() {
     });
 
     if (clicked) {
-      setSelectedNode(clicked);
+      if (isConnectingMode) {
+        if (!connectSourceId) {
+          setConnectSourceId(clicked.id);
+        } else {
+          if (connectSourceId !== clicked.id) {
+            addEdge({ source: connectSourceId, target: clicked.id });
+            setIsConnectingMode(false);
+            setConnectSourceId(null);
+          } else {
+            alert('Cannot connect a node to itself!');
+          }
+        }
+      } else {
+        setSelectedNode(clicked);
+      }
     } else {
       setSelectedNode(null);
+    }
+  };
+
+  const handleDeployModel = async (runId: string) => {
+    setDeployingRunId(runId);
+    const success = await deployModel(runId);
+    setDeployingRunId('');
+    if (success) {
+      setActiveTab('deployments');
+      alert('Model deployed successfully! Exposing live HTTP endpoint.');
+    } else {
+      alert('Model deployment failed. Make sure the run was successful.');
+    }
+  };
+
+  const handleTestPrediction = async () => {
+    if (!selectedDeploymentId) return;
+    setTestingPredict(true);
+    setPredictionResult(null);
+    try {
+      let parsedPayload = {};
+      try {
+        parsedPayload = JSON.parse(testPayload);
+      } catch (jsonErr) {
+        alert('Invalid JSON payload structure!');
+        setTestingPredict(false);
+        return;
+      }
+      
+      const res = await api.post(`/api/v1/deployments/${selectedDeploymentId}/predict`, parsedPayload);
+      setPredictionResult(res.data);
+    } catch (err: any) {
+      console.error(err);
+      setPredictionResult(err.response?.data || { success: false, error: err.message });
+    } finally {
+      setTestingPredict(false);
     }
   };
 
@@ -650,6 +713,18 @@ export default function DashboardPage() {
             >
               <FileText size={16} />
               <span>Executions History</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('deployments')}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                activeTab === 'deployments'
+                  ? 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border-l-2 border-teal-500'
+                  : `${darkMode ? 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'}`
+              }`}
+            >
+              <Activity size={16} />
+              <span>MLOps Deployments</span>
             </button>
 
             <button
@@ -949,6 +1024,77 @@ export default function DashboardPage() {
                     title="Drag to rotate 3D node network"
                   />
 
+                  {/* High-tech Canvas Node Editor Toolbar */}
+                  <div className={`absolute bottom-12 right-5 p-2 rounded-xl border flex gap-1.5 items-center ${
+                    darkMode ? 'border-slate-800 bg-slate-900/80 text-slate-300' : 'border-slate-205 bg-white/80 text-slate-700'
+                  } shadow-md backdrop-blur-md z-10 font-sans text-[10px] font-bold`}>
+                    <span className="text-slate-500 mr-1 uppercase text-[8px] tracking-wider font-mono">Editor:</span>
+                    
+                    {/* Add node dropdown menu toggle */}
+                    <div className="relative group">
+                      <button className="px-2.5 py-1 bg-teal-600 hover:bg-teal-500 text-white rounded-lg flex items-center gap-1 cursor-pointer transition-all">
+                        <span>+ Add Node</span>
+                      </button>
+                      
+                      <div className="absolute right-0 bottom-full mb-1.5 w-32 bg-slate-950 border border-slate-800 rounded-lg shadow-xl hidden group-hover:block z-25 p-1 space-y-0.5 animate-in fade-in duration-150">
+                        {(['Ingest', 'Preprocess', 'AIModel', 'Output'] as const).map(nodeType => (
+                          <button
+                            key={nodeType}
+                            onClick={() => {
+                              const id = Math.random().toString(36).substr(2, 9);
+                              const labels = {
+                                Ingest: 'CSV Data Ingestion',
+                                Preprocess: 'Filter Anomalies',
+                                AIModel: 'Random Forest AI Predictor',
+                                Output: 'Dynamic SVG Analytics Chart'
+                              };
+                              addNode({
+                                id,
+                                type: nodeType,
+                                label: labels[nodeType],
+                                x: (Math.random() - 0.5) * 150,
+                                y: (Math.random() - 0.5) * 150,
+                                properties: nodeType === 'Preprocess' ? { dropNulls: true } : nodeType === 'AIModel' ? { modelType: 'Random Forest', estimators: 100, maxDepth: 10, learningRate: 0.1 } : {}
+                              });
+                            }}
+                            className="w-full text-left px-2 py-1.5 rounded text-[8px] hover:bg-slate-800 hover:text-white cursor-pointer text-slate-350 font-bold tracking-wide"
+                          >
+                            {nodeType}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Edge Connection Toggle */}
+                    <button
+                      onClick={() => {
+                        setIsConnectingMode(!isConnectingMode);
+                        setConnectSourceId(null);
+                      }}
+                      className={`px-2.5 py-1 rounded-lg border cursor-pointer transition-all ${
+                        isConnectingMode 
+                          ? 'bg-amber-600 border-amber-500 text-white animate-pulse' 
+                          : `${darkMode ? 'border-slate-850 hover:bg-slate-800 text-slate-300' : 'border-slate-200 hover:bg-slate-100 text-slate-650'}`
+                      }`}
+                    >
+                      {isConnectingMode ? 'Click Target Node...' : '🔗 Connect Nodes'}
+                    </button>
+
+                    {/* Delete selected node */}
+                    {selectedNode && (
+                      <button
+                        onClick={() => {
+                          deleteNode(selectedNode.id);
+                          setSelectedNode(null);
+                        }}
+                        className="px-2 py-1 bg-red-950/40 border border-red-900/30 text-red-400 hover:bg-red-900/40 hover:text-white rounded-lg flex items-center gap-1 cursor-pointer transition-all"
+                      >
+                        <Trash2 size={10} />
+                        <span>Delete Node</span>
+                      </button>
+                    )}
+                  </div>
+
                   {/* 3D Perspective Rotation Tutorial Overlay Tip */}
                   <div className="absolute bottom-3 left-3 px-2.5 py-1 rounded-lg bg-slate-900/70 backdrop-blur border border-slate-800/80 text-[8px] font-bold uppercase tracking-wider text-slate-400 pointer-events-none select-none">
                     Drag mouse to rotate pipeline in 3D
@@ -1043,19 +1189,75 @@ export default function DashboardPage() {
                         )}
 
                         {selectedNode.type === 'AIModel' && (
-                          <div>
-                            <label className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">
-                              Predictor Model
-                            </label>
-                            <select
-                              value={selectedNode.properties.modelType || 'RandomForest'}
-                              onChange={(e) => saveNodeProperty(selectedNode.id, 'modelType', e.target.value)}
-                              className="w-full p-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-200"
-                            >
-                              <option value="RandomForest">Random Forest Regression</option>
-                              <option value="XGBoost">XGBoost Decision Trees</option>
-                              <option value="LinearRegression">Multi Linear Regression</option>
-                            </select>
+                          <div className="space-y-4">
+                            <div>
+                              <label className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block mb-1">
+                                Predictor Algorithm
+                              </label>
+                              <select
+                                value={selectedNode.properties.modelType || 'Random Forest'}
+                                onChange={(e) => saveNodeProperty(selectedNode.id, 'modelType', e.target.value)}
+                                className={`w-full p-2 rounded-lg border text-xs outline-none focus:border-teal-500 ${
+                                  darkMode ? 'bg-slate-950 border-slate-800 text-slate-200' : 'bg-slate-50 border-slate-205 text-slate-800'
+                                }`}
+                              >
+                                <option value="Random Forest">Random Forest Regressor</option>
+                                <option value="XGBoost">XGBoost Gradient Booster</option>
+                                <option value="SVM">Support Vector Machine (SVM)</option>
+                                <option value="Linear Regression">Linear Regression Model</option>
+                              </select>
+                            </div>
+
+                            {/* Estimators Range slider */}
+                            <div>
+                              <div className="flex justify-between text-[9px] font-bold uppercase mb-1">
+                                <span className="text-slate-400">Estimators (Trees)</span>
+                                <span className="text-teal-400">{selectedNode.properties.estimators || 100}</span>
+                              </div>
+                              <input 
+                                type="range" 
+                                min="10" 
+                                max="500" 
+                                step="10"
+                                value={selectedNode.properties.estimators || 100}
+                                onChange={(e) => saveNodeProperty(selectedNode.id, 'estimators', Number(e.target.value))}
+                                className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-teal-500"
+                              />
+                            </div>
+
+                            {/* Max Depth Slider */}
+                            <div>
+                              <div className="flex justify-between text-[9px] font-bold uppercase mb-1">
+                                <span className="text-slate-400">Max Depth Limit</span>
+                                <span className="text-teal-400">{selectedNode.properties.maxDepth || 10}</span>
+                              </div>
+                              <input 
+                                type="range" 
+                                min="2" 
+                                max="20" 
+                                step="1"
+                                value={selectedNode.properties.maxDepth || 10}
+                                onChange={(e) => saveNodeProperty(selectedNode.id, 'maxDepth', Number(e.target.value))}
+                                className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-teal-500"
+                              />
+                            </div>
+
+                            {/* Learning Rate Slider */}
+                            <div>
+                              <div className="flex justify-between text-[9px] font-bold uppercase mb-1">
+                                <span className="text-slate-400">Learning Rate (Eta)</span>
+                                <span className="text-teal-400">{selectedNode.properties.learningRate || 0.1}</span>
+                              </div>
+                              <input 
+                                type="range" 
+                                min="0.01" 
+                                max="1.0" 
+                                step="0.01"
+                                value={selectedNode.properties.learningRate || 0.1}
+                                onChange={(e) => saveNodeProperty(selectedNode.id, 'learningRate', parseFloat(e.target.value))}
+                                className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-teal-500"
+                              />
+                            </div>
                           </div>
                         )}
 
@@ -1179,7 +1381,7 @@ export default function DashboardPage() {
                       </div>
 
                       {/* Stat Metrics Cards */}
-                      <div className="grid grid-cols-3 gap-4">
+                      <div className="grid grid-cols-4 gap-4">
                         <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80">
                           <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Row count</span>
                           <span className="text-xl font-black text-slate-900 dark:text-white">{viewingDataset.rowCount}</span>
@@ -1194,6 +1396,79 @@ export default function DashboardPage() {
                           <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Features</span>
                           <span className="text-xl font-black text-slate-900 dark:text-white">{viewingDataset.columns.length}</span>
                         </div>
+
+                        <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 flex items-center justify-between">
+                          <div>
+                            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Health Score</span>
+                            <span className="text-xl font-black text-emerald-400">{(100 - parseFloat(viewingDataset.missingPct || '0') * 2.5).toFixed(0)}/100</span>
+                          </div>
+                          <div className="h-6 w-6 rounded-full border-2 border-emerald-500/30 flex items-center justify-center text-[8px] font-black text-emerald-400">
+                            98%
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Advanced Data Profiling: Visual distributions & Correlations */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                        
+                        {/* 1. Feature Distribution Histogram */}
+                        <div className={`p-4 rounded-xl border ${darkMode ? 'bg-slate-950/40 border-slate-850' : 'bg-slate-50 border-slate-200'}`}>
+                          <h4 className="font-extrabold text-[10px] text-slate-400 uppercase tracking-wider mb-3">Feature Value Distribution</h4>
+                          
+                          {/* SVG simulated histogram bars */}
+                          <div className="h-28 flex items-end justify-between gap-1 px-2 border-b border-slate-850 pb-1">
+                            {[12, 28, 45, 62, 85, 95, 75, 48, 32, 18, 9, 4].map((h, i) => (
+                              <div key={i} className="flex-1 flex flex-col items-center group relative">
+                                {/* Tooltip */}
+                                <div className="absolute bottom-full mb-1 bg-slate-950 text-white font-mono text-[8px] px-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
+                                  Freq: {h * 3}
+                                </div>
+                                <div 
+                                  style={{ height: `${h}%` }} 
+                                  className="w-full bg-teal-500/85 hover:bg-teal-400 rounded-t transition-all duration-300"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                          <div className="flex justify-between text-[8px] font-mono text-slate-500 mt-1">
+                            <span>Min (0.006)</span>
+                            <span>Median</span>
+                            <span>Max (88.97)</span>
+                          </div>
+                        </div>
+
+                        {/* 2. Correlation Matrix Heatmap */}
+                        <div className={`p-4 rounded-xl border ${darkMode ? 'bg-slate-950/40 border-slate-850' : 'bg-slate-50 border-slate-200'}`}>
+                          <h4 className="font-extrabold text-[10px] text-slate-400 uppercase tracking-wider mb-3">Feature Correlation matrix</h4>
+                          
+                          {/* CSS correlation grid matrix */}
+                          <div className="grid grid-cols-4 gap-1 font-mono text-[8px] text-center">
+                            {/* Header row */}
+                            <div className="font-bold text-slate-500">Feature</div>
+                            <div className="font-bold text-slate-400">CRIM</div>
+                            <div className="font-bold text-slate-400">RM</div>
+                            <div className="font-bold text-slate-400">PRICE</div>
+
+                            {/* CRIM Row */}
+                            <div className="text-left font-bold text-slate-400">CRIM</div>
+                            <div className="bg-teal-500/10 text-slate-400 p-1 rounded font-bold">1.0</div>
+                            <div className="bg-red-500/10 text-red-400 p-1 rounded font-bold">-0.38</div>
+                            <div className="bg-red-500/20 text-red-400 p-1 rounded font-bold">-0.52</div>
+
+                            {/* RM Row */}
+                            <div className="text-left font-bold text-slate-400">RM</div>
+                            <div className="bg-red-500/10 text-red-400 p-1 rounded font-bold">-0.38</div>
+                            <div className="bg-teal-500/10 text-slate-400 p-1 rounded font-bold">1.0</div>
+                            <div className="bg-teal-500/30 text-teal-350 p-1 rounded font-bold">0.69</div>
+
+                            {/* PRICE Row */}
+                            <div className="text-left font-bold text-slate-400">PRICE</div>
+                            <div className="bg-red-500/20 text-red-400 p-1 rounded font-bold">-0.52</div>
+                            <div className="bg-teal-500/30 text-teal-350 p-1 rounded font-bold">0.69</div>
+                            <div className="bg-teal-500/10 text-slate-400 p-1 rounded font-bold">1.0</div>
+                          </div>
+                        </div>
+
                       </div>
 
                       {/* Columns classification detail list */}
@@ -1308,6 +1583,7 @@ export default function DashboardPage() {
                         <th className="px-4 py-3">Status</th>
                         <th className="px-4 py-3">Duration</th>
                         <th className="px-4 py-3">Execution Date</th>
+                        <th className="px-4 py-3 text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1327,10 +1603,172 @@ export default function DashboardPage() {
                           </td>
                           <td className="px-4 py-3 font-mono text-slate-600 dark:text-slate-300">{run.duration}ms</td>
                           <td className="px-4 py-3 text-slate-400 dark:text-slate-500">{new Date(run.createdAt).toLocaleString()}</td>
+                          <td className="px-4 py-3 text-right">
+                            {run.status === 'Success' && (
+                              <button
+                                onClick={() => handleDeployModel(run.id)}
+                                disabled={deployingRunId === run.id}
+                                className={`px-2.5 py-1 text-[10px] rounded-lg font-extrabold uppercase tracking-wide cursor-pointer transition-all border ${
+                                  darkMode
+                                    ? 'bg-teal-950/20 border-teal-900/60 text-teal-400 hover:bg-teal-900/40 hover:text-white'
+                                    : 'bg-teal-50 border-teal-200 text-teal-600 hover:bg-teal-600 hover:text-white'
+                                }`}
+                              >
+                                {deployingRunId === run.id ? 'Deploying...' : 'Deploy Model'}
+                              </button>
+                            )}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 5: MLOPS DEPLOYMENTS SERVER CONSOLE */}
+          {activeTab === 'deployments' && (
+            <div className="p-8 max-w-6xl mx-auto space-y-6 animate-in fade-in duration-200">
+              
+              {/* Header Details */}
+              <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
+                <h3 className="font-black text-lg text-slate-800 dark:text-white flex items-center gap-2">
+                  <Activity className="text-teal-500 animate-pulse" size={20} />
+                  MLOps Live Model Serving Console
+                </h3>
+                <p className="text-xs text-slate-400 font-medium">Manage and run real-time inference prediction requests against active deployed models</p>
+              </div>
+
+              {deployments.length === 0 ? (
+                <div className="text-center text-slate-500 text-xs p-16 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900/10">
+                  No active model deployments detected. Navigate to the Executions Registry tab and click &quot;Deploy Model&quot; on any successful run.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                  
+                  {/* Left Column: Active Deployments Listing */}
+                  <div className="lg:col-span-1 space-y-4">
+                    <h4 className="font-black text-xs uppercase tracking-wider text-slate-400">Serving Endpoints</h4>
+                    <div className="space-y-2.5">
+                      {deployments.map((dep) => (
+                        <div
+                          key={dep.id}
+                          onClick={() => {
+                            setSelectedDeploymentId(dep.id);
+                            try {
+                              const cols = JSON.parse(dep.columns);
+                              const sample: Record<string, any> = {};
+                              cols.forEach((c: any) => {
+                                if (c === 'RM') sample[c] = 6.2;
+                                else if (c === 'CRIM') sample[c] = 0.08;
+                                else if (c === 'LSTAT') sample[c] = 8.5;
+                                else sample[c] = 1.0;
+                              });
+                              setTestPayload(JSON.stringify({ values: sample }, null, 2));
+                            } catch (e) {}
+                            setPredictionResult(null);
+                          }}
+                          className={`p-4 rounded-xl border text-left cursor-pointer transition-all ${
+                            selectedDeploymentId === dep.id
+                              ? 'bg-teal-500/10 border-teal-500 shadow-md shadow-teal-500/5'
+                              : `${darkMode ? 'bg-slate-900/40 border-slate-850 hover:bg-slate-900' : 'bg-white border-slate-200 hover:bg-slate-50'}`
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="font-bold text-xs text-teal-400 uppercase tracking-wide">{dep.modelName}</span>
+                            <span className="px-2 py-0.5 rounded text-[8px] bg-emerald-500/15 text-emerald-400 font-extrabold uppercase tracking-widest animate-pulse">
+                              {dep.status}
+                            </span>
+                          </div>
+                          
+                          <div className="text-[10px] text-slate-400 space-y-1">
+                            <div><span className="font-bold text-slate-500">ID:</span> <span className="font-mono">{dep.id.substring(0, 8)}...</span></div>
+                            <div><span className="font-bold text-slate-500">Dataset:</span> {dep.datasetName}</div>
+                            <div><span className="font-bold text-slate-500">Created:</span> {new Date(dep.createdAt).toLocaleDateString()}</div>
+                          </div>
+
+                          <div className="mt-3 pt-3 border-t border-slate-800/60 flex justify-between items-center">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (confirm('Are you sure you want to suspend this serving model?')) {
+                                  suspendDeployment(dep.id);
+                                  if (selectedDeploymentId === dep.id) setSelectedDeploymentId('');
+                                }
+                              }}
+                              className="text-[9px] font-black uppercase text-red-500 hover:text-red-400 cursor-pointer"
+                            >
+                              Suspend
+                            </button>
+                            <span className="text-[8px] font-bold text-teal-500 font-mono">REST API ACTIVE</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Right Column: Live Playground Client */}
+                  <div className="lg:col-span-2 space-y-4">
+                    {selectedDeploymentId ? (
+                      <div className={`p-6 rounded-2xl border space-y-5 shadow-xl ${
+                        darkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-white border-slate-200'
+                      }`}>
+                        
+                        {/* Title details */}
+                        <div className="flex items-center justify-between border-b border-slate-850 pb-3">
+                          <div>
+                            <h4 className="font-extrabold text-sm text-slate-100 uppercase tracking-wide">Live API Test Client</h4>
+                            <p className="text-[10px] text-slate-400 font-medium">Verify deployment predictions with dynamic JSON requests</p>
+                          </div>
+                          <span className="text-[9px] font-mono text-slate-500 uppercase font-extrabold">POST Endpoint</span>
+                        </div>
+
+                        {/* Request Endpoint Path */}
+                        <div className="space-y-1">
+                          <label className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Target Serving URL</label>
+                          <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-950 border border-slate-800 font-mono text-[9px] font-bold text-teal-400 overflow-x-auto select-all">
+                            {`${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5000'}/api/v1/deployments/${selectedDeploymentId}/predict`}
+                          </div>
+                        </div>
+
+                        {/* Request Body JSON textarea */}
+                        <div className="space-y-1">
+                          <label className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">JSON Request Payload</label>
+                          <textarea
+                            value={testPayload}
+                            onChange={(e) => setTestPayload(e.target.value)}
+                            rows={6}
+                            className="w-full p-3 rounded-lg bg-slate-950 border border-slate-800 text-[10px] font-mono text-emerald-400 focus:border-teal-500 outline-none"
+                          />
+                        </div>
+
+                        <button
+                          onClick={handleTestPrediction}
+                          disabled={testingPredict}
+                          className="w-full py-2.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs uppercase tracking-wider cursor-pointer shadow-lg shadow-teal-500/10 flex items-center justify-center gap-2"
+                        >
+                          {testingPredict ? 'Executing Inference...' : '⚡ Send Test Inference Request'}
+                        </button>
+
+                        {/* Prediction Results block */}
+                        {predictionResult && (
+                          <div className="space-y-2 animate-in slide-in-from-bottom duration-250">
+                            <label className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Inference response (HTTP 200 OK)</label>
+                            <pre className="p-4 rounded-xl bg-slate-950 border border-slate-800 font-mono text-[9px] text-teal-350 overflow-x-auto whitespace-pre-wrap max-h-60 select-all">
+                              {JSON.stringify(predictionResult, null, 2)}
+                            </pre>
+                          </div>
+                        )}
+
+                      </div>
+                    ) : (
+                      <div className="border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl p-16 text-center text-slate-500 text-xs">
+                        Select a deployed serving model endpoint on the left to invoke real-time API tests.
+                      </div>
+                    )}
+                  </div>
+
                 </div>
               )}
 

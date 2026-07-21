@@ -11,6 +11,7 @@ const authRoutes = require('./routes/auth');
 const datasetRoutes = require('./routes/datasets');
 const pipelineRoutes = require('./routes/pipelines');
 const runRoutes = require('./routes/runs');
+const deploymentRoutes = require('./routes/deployments');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -53,6 +54,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/datasets', datasetRoutes);
 app.use('/api/v1/pipelines', pipelineRoutes);
 app.use('/api/v1/runs', runRoutes);
+app.use('/api/v1/deployments', deploymentRoutes);
 
 // Socket.io Connection Logic
 io.on('connection', (socket) => {
