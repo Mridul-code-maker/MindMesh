@@ -363,6 +363,10 @@ print("Performance visualization report saved as 'performance_report.png'.")
       const resolvedNodes = activeNodes.map(node => {
         let x3d = (node.x !== undefined && node.x !== 0) ? node.x : 0;
         let y3d = (node.y !== undefined && node.y !== 0) ? node.y : 0;
+
+        // Clamp coordinates to safe range to handle previously out-of-bounds saved values
+        x3d = Math.max(-150, Math.min(150, x3d));
+        y3d = Math.max(-100, Math.min(100, y3d));
         let z3d = 0;
 
         if (x3d === 0 && y3d === 0) {
@@ -613,12 +617,15 @@ print("Performance visualization report saved as 'performance_report.png'.")
       const node = activeNodes.find(n => n.id === draggedNodeId.current);
       if (node) {
         // Calculate original coordinates
-        const currentX = (node.x !== undefined && node.x !== 0) ? node.x : (node.type === 'Ingest' ? -160 : node.type === 'Preprocess' ? -50 : node.type === 'AIModel' ? 50 : 160);
-        const currentY = (node.y !== undefined && node.y !== 0) ? node.y : (node.type === 'Ingest' ? -30 : node.type === 'Preprocess' ? 40 : node.type === 'AIModel' ? -40 : 30);
+        const currentX = (node.x !== undefined && node.x !== 0) ? node.x : (node.type === 'Ingest' ? -130 : node.type === 'Preprocess' ? -40 : node.type === 'AIModel' ? 40 : 130);
+        const currentY = (node.y !== undefined && node.y !== 0) ? node.y : (node.type === 'Ingest' ? -20 : node.type === 'Preprocess' ? 30 : node.type === 'AIModel' ? -30 : 20);
         
-        // Simple scaling: dragging on viewport coordinates maps directly to 3D space with safe constraints
-        const newX = Math.max(-220, Math.min(220, currentX + dx * 1.0));
-        const newY = Math.max(-120, Math.min(120, currentY + dy * 1.0));
+        // Clamp current positions to safe coordinates range
+        const clampedCurrentX = Math.max(-150, Math.min(150, currentX));
+        const clampedCurrentY = Math.max(-100, Math.min(100, currentY));
+
+        const newX = Math.max(-150, Math.min(150, clampedCurrentX + dx * 1.0));
+        const newY = Math.max(-100, Math.min(100, clampedCurrentY + dy * 1.0));
         
         // Optimistic UI update in the store (persist = false to avoid flood api calls)
         updateNodePosition(node.id, newX, newY, false);
