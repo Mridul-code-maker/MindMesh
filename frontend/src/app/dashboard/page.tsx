@@ -589,11 +589,11 @@ export default function DashboardPage() {
   return (
     <div className={`flex flex-1 ${darkMode ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'} font-sans`}>
       {/* 1. Left Vertical Navigation Sidebar */}
-      <aside className="w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 backdrop-blur-md flex flex-col justify-between shrink-0">
+      <aside className={`w-64 border-r ${darkMode ? 'border-slate-900 bg-slate-900/60' : 'border-slate-200 bg-white'} backdrop-blur-md flex flex-col justify-between shrink-0`}>
         <div>
           {/* Header Branding */}
-          <div className="p-6 border-b border-slate-150 dark:border-slate-800/80 flex items-center gap-3">
-            <div className="h-9 w-9 rounded-lg bg-teal-600 flex items-center justify-center shadow-md shadow-teal-500/20">
+          <div className={`p-6 border-b flex items-center gap-3 ${darkMode ? 'border-slate-900/80' : 'border-slate-150'}`}>
+            <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-teal-600 to-teal-450 flex items-center justify-center shadow-md shadow-teal-500/20">
               <Activity className="text-white" size={18} />
             </div>
             <div>
@@ -611,7 +611,7 @@ export default function DashboardPage() {
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 activeTab === 'playground'
                   ? 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border-l-2 border-teal-500'
-                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-850'
+                  : `${darkMode ? 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'}`
               }`}
             >
               <Network size={16} />
@@ -623,7 +623,7 @@ export default function DashboardPage() {
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 activeTab === 'datasets'
                   ? 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border-l-2 border-teal-500'
-                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-850'
+                  : `${darkMode ? 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'}`
               }`}
             >
               <Database size={16} />
@@ -635,7 +635,7 @@ export default function DashboardPage() {
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 activeTab === 'runs'
                   ? 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border-l-2 border-teal-500'
-                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-850'
+                  : `${darkMode ? 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'}`
               }`}
             >
               <FileText size={16} />
@@ -647,7 +647,7 @@ export default function DashboardPage() {
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 activeTab === 'settings'
                   ? 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border-l-2 border-teal-500'
-                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-850'
+                  : `${darkMode ? 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'}`
               }`}
             >
               <SettingsIcon size={16} />
@@ -657,7 +657,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Footer Profile Controls */}
-        <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20">
+        <div className={`p-4 border-t ${darkMode ? 'border-slate-900 bg-slate-950/20' : 'border-slate-200 bg-slate-50/50'}`}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <div className="h-7 w-7 rounded-full bg-teal-500/20 flex items-center justify-center text-teal-400">
@@ -671,7 +671,9 @@ export default function DashboardPage() {
             
             <button 
               onClick={() => setDarkMode(!darkMode)}
-              className="p-1.5 rounded bg-slate-200 dark:bg-slate-850 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-800 cursor-pointer"
+              className={`p-1.5 rounded text-xs font-bold cursor-pointer transition-colors ${
+                darkMode ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-slate-200 text-slate-650 hover:bg-slate-300'
+              }`}
             >
               {darkMode ? <Sun size={12} /> : <Moon size={12} />}
             </button>
@@ -691,9 +693,11 @@ export default function DashboardPage() {
       <main className="flex-1 flex flex-col min-w-0">
         
         {/* Workspace Top Header Bar */}
-        <header className="h-16 border-b border-slate-200 dark:border-slate-800/80 bg-white/70 dark:bg-slate-900/40 backdrop-blur-md px-6 flex items-center justify-between shrink-0">
+        <header className={`h-16 border-b ${
+          darkMode ? 'border-slate-900 bg-slate-950/80' : 'border-slate-200 bg-white/80'
+        } backdrop-blur-md px-6 flex items-center justify-between shrink-0`}>
           <div className="flex items-center gap-2.5">
-            <h3 className="font-extrabold text-sm tracking-tight text-slate-800 dark:text-slate-100">
+            <h3 className={`font-extrabold text-sm tracking-tight ${darkMode ? 'text-slate-100' : 'text-slate-800'}`}>
               {activeTab === 'playground' && `MindMesh Sandbox Playground — ${activePipeline?.name || 'Workspace'}`}
               {activeTab === 'datasets' && 'Data Ingestion & profiling Registry'}
               {activeTab === 'runs' && 'Historical Pipeline Executions Log'}
@@ -704,13 +708,19 @@ export default function DashboardPage() {
           <div className="flex items-center gap-3">
             {/* Real-time Connection Status Dot */}
             <div 
-              className="flex items-center gap-1.5 px-2.5 h-8.5 rounded-lg border border-slate-200 dark:border-slate-800 text-[10px] font-bold select-none cursor-help"
+              className={`flex items-center gap-1.5 px-2.5 h-8.5 rounded-lg border text-[10px] font-bold select-none cursor-help ${
+                darkMode ? 'border-slate-800 bg-slate-900' : 'border-slate-200 bg-slate-50'
+              }`}
               title={socketConnected ? 'WebSocket sync channel is active and secure.' : 'WebSocket disconnected. Retrying...'}
             >
               <span className={`h-1.5 w-1.5 rounded-full ${
                 socketConnected ? 'bg-emerald-500 shadow-sm shadow-emerald-500/50' : 'bg-amber-500 animate-pulse'
               }`} />
-              <span className={socketConnected ? 'text-slate-500 dark:text-slate-400' : 'text-amber-500 font-black'}>
+              <span className={`${
+                socketConnected 
+                  ? (darkMode ? 'text-slate-400' : 'text-slate-650') 
+                  : 'text-amber-500 font-black animate-pulse'
+              }`}>
                 {socketConnected ? 'Sync Active' : 'Offline'}
               </span>
             </div>
@@ -736,15 +746,21 @@ export default function DashboardPage() {
             <div className="h-full flex flex-col xl:flex-row min-h-0">
               
               {/* Left Panel: Chat Console & Live Logger */}
-              <div className="w-full xl:w-96 border-r border-slate-200 dark:border-slate-800 bg-white/30 dark:bg-slate-900/10 flex flex-col shrink-0 min-h-[350px] xl:min-h-0">
+              <div className={`w-full xl:w-96 border-r ${
+                darkMode ? 'border-slate-900 bg-slate-950/40' : 'border-slate-200 bg-white/30'
+              } flex flex-col shrink-0 min-h-[350px] xl:min-h-0`}>
                 {/* Chat window */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[300px] xl:max-h-none">
                   {chatMessages.map((msg, i) => (
                     <div key={i} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
-                      <div className={`p-3 rounded-xl max-w-[85%] text-xs leading-relaxed ${
+                      <div className={`p-3.5 rounded-xl max-w-[85%] text-xs leading-relaxed border ${
                         msg.sender === 'user' 
-                          ? 'bg-teal-600 text-white rounded-tr-none' 
-                          : 'bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 rounded-tl-none'
+                          ? 'bg-gradient-to-r from-teal-600 to-teal-500 text-white border-teal-500/10 rounded-tr-none shadow-md shadow-teal-500/10' 
+                          : `${
+                              darkMode 
+                                ? 'bg-slate-900 border-slate-800 text-slate-100' 
+                                : 'bg-white border-slate-205 text-slate-800'
+                            } rounded-tl-none shadow-sm`
                       }`}>
                         {msg.text}
                       </div>
@@ -754,7 +770,9 @@ export default function DashboardPage() {
 
                   {/* Socket Real-time logs tailing */}
                   {liveLogs.length > 0 && (
-                    <div className="border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-950 text-slate-300 font-mono text-[9px] p-3 space-y-1.5 animate-in fade-in duration-200">
+                    <div className={`border rounded-xl font-mono text-[9px] p-3 space-y-1.5 animate-in fade-in duration-200 ${
+                      darkMode ? 'border-slate-900 bg-slate-950 text-slate-300' : 'border-slate-200 bg-slate-100 text-slate-700'
+                    }`}>
                       <div className="flex items-center gap-1.5 text-teal-400 font-black uppercase text-[8px] tracking-wider border-b border-slate-900 pb-1 mb-1.5">
                         <Terminal size={10} />
                         WebSocket Pipeline Logger
@@ -763,7 +781,7 @@ export default function DashboardPage() {
                         {liveLogs.map((log, idx) => (
                           <div key={idx} className="flex gap-2">
                             <span className="text-slate-600 shrink-0">[{log.node}]</span>
-                            <span className={log.type === 'error' ? 'text-red-400 font-bold' : log.type === 'warning' ? 'text-amber-400' : 'text-slate-300'}>
+                            <span className={log.type === 'error' ? 'text-red-400 font-bold' : log.type === 'warning' ? 'text-amber-400' : (darkMode ? 'text-slate-300' : 'text-slate-800')}>
                               {log.text}
                             </span>
                           </div>
@@ -775,7 +793,9 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Prompt Card Suggestion Deck */}
-                <div className="px-3 py-2 border-t border-slate-200 dark:border-slate-850/80 bg-slate-50 dark:bg-slate-900/10 shrink-0">
+                <div className={`px-3 py-2 border-t shrink-0 ${
+                  darkMode ? 'border-slate-900 bg-slate-950/20' : 'border-slate-200 bg-slate-50/50'
+                }`}>
                   <span className="text-[8px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1 mb-1.5">
                     <MessageSquare size={9} />
                     Suggested AI Prompt Cards
@@ -788,7 +808,11 @@ export default function DashboardPage() {
                         onClick={() => {
                           setChatInput(card.text);
                         }}
-                        className="px-2.5 py-1.5 text-[10px] font-bold rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:border-teal-500/50 hover:bg-slate-100 dark:hover:bg-slate-850 shrink-0 cursor-pointer transition-all"
+                        className={`px-2.5 py-1.5 text-[10px] font-bold rounded-lg border shrink-0 cursor-pointer transition-all ${
+                          darkMode 
+                            ? 'border-slate-800 bg-slate-900 text-slate-300 hover:border-teal-500/50 hover:bg-slate-800' 
+                            : 'border-slate-205 bg-white text-slate-700 hover:border-teal-500/30 hover:bg-slate-55'
+                        }`}
                       >
                         {card.label}
                       </button>
@@ -797,13 +821,19 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Prompt Message bar */}
-                <form onSubmit={handleChatSubmit} className="p-3 border-t border-slate-200 dark:border-slate-850 flex gap-2 bg-white dark:bg-slate-900/20 shrink-0">
+                <form onSubmit={handleChatSubmit} className={`p-3 border-t flex gap-2 shrink-0 ${
+                  darkMode ? 'border-slate-900 bg-slate-950/15' : 'border-slate-200 bg-white/20'
+                }`}>
                   <input
                     type="text"
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
                     placeholder="Ask Agent to clean data..."
-                    className="flex-1 px-3 py-2 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-teal-500 text-xs outline-none text-slate-900 dark:text-slate-100"
+                    className={`flex-1 px-3 py-2 rounded-lg border text-xs outline-none focus:border-teal-500 transition-all ${
+                      darkMode 
+                        ? 'bg-slate-950 border-slate-800 text-slate-100 focus:bg-slate-900' 
+                        : 'bg-white border-slate-205 text-slate-900 focus:bg-slate-50'
+                    }`}
                   />
                   <button
                     type="submit"
@@ -837,9 +867,15 @@ export default function DashboardPage() {
 
                 {/* Node Property panel / Slide-out drawer on click */}
                 {selectedNode && (
-                  <div className="w-full lg:w-80 border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 backdrop-blur-md p-5 flex flex-col justify-between shrink-0 z-10 animate-in slide-in-from-right duration-250">
+                  <div className={`w-full lg:w-80 border-t lg:border-t-0 lg:border-l p-5 flex flex-col justify-between shrink-0 z-10 animate-in slide-in-from-right duration-250 ${
+                    darkMode 
+                      ? 'border-slate-800 bg-slate-950/95 backdrop-blur-md text-slate-100' 
+                      : 'border-slate-200 bg-white/95 backdrop-blur-md text-slate-900'
+                  }`}>
                     <div>
-                      <div className="flex items-center justify-between border-b border-slate-150 dark:border-slate-800 pb-3 mb-4">
+                      <div className={`flex items-center justify-between border-b pb-3 mb-4 ${
+                        darkMode ? 'border-slate-800' : 'border-slate-200'
+                      }`}>
                         <h4 className="font-extrabold text-xs uppercase tracking-wider text-teal-400 flex items-center gap-1.5">
                           {selectedNode.type === 'Ingest' && <Database size={13} />}
                           {selectedNode.type === 'Preprocess' && <Edit3 size={13} />}
@@ -849,7 +885,9 @@ export default function DashboardPage() {
                         </h4>
                         <button 
                           onClick={() => setSelectedNode(null)}
-                          className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-850 cursor-pointer"
+                          className={`p-1 rounded cursor-pointer transition-colors ${
+                            darkMode ? 'hover:bg-slate-800 text-slate-400' : 'hover:bg-slate-150 text-slate-650'
+                          }`}
                         >
                           <X size={12} />
                         </button>
@@ -860,7 +898,11 @@ export default function DashboardPage() {
                           <label className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">
                             Node Label
                           </label>
-                          <div className="text-xs font-bold text-slate-800 dark:text-slate-100 bg-slate-100 dark:bg-slate-850 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                          <div className={`text-xs font-bold p-2.5 rounded-lg border ${
+                            darkMode 
+                              ? 'text-slate-150 bg-slate-900 border-slate-800' 
+                              : 'text-slate-800 bg-slate-105 border-slate-200'
+                          }`}>
                             {selectedNode.label}
                           </div>
                         </div>
@@ -1069,7 +1111,9 @@ export default function DashboardPage() {
                         <h4 className="font-black text-xs uppercase tracking-wider text-slate-400 mb-3">Feature Schema Classification</h4>
                         <div className="flex flex-wrap gap-2">
                           {viewingDataset.columns.map((c: any, i: number) => (
-                            <span key={i} className="px-2.5 py-1 rounded bg-slate-950 border border-slate-850 text-[10px] font-bold text-slate-300 flex items-center gap-1.5">
+                            <span key={i} className={`px-2.5 py-1 rounded border text-[10px] font-bold flex items-center gap-1.5 ${
+                              darkMode ? 'bg-slate-900 border-slate-800 text-slate-300' : 'bg-slate-100 border-slate-200 text-slate-700'
+                            }`}>
                               <span className={`h-1 w-1 rounded-full ${c.type === 'Number' ? 'bg-amber-400' : 'bg-cyan-400'}`} />
                               {c.name}
                               <span className="text-slate-500 font-medium font-mono">({c.type})</span>
@@ -1081,20 +1125,24 @@ export default function DashboardPage() {
                       {/* Top 5 Rows Previews table */}
                       <div>
                         <h4 className="font-black text-xs uppercase tracking-wider text-slate-400 mb-3">Ingested Rows Preview (Top 5)</h4>
-                        <div className="overflow-x-auto border border-slate-150 dark:border-slate-850 rounded-xl">
+                        <div className={`overflow-x-auto border rounded-xl ${darkMode ? 'border-slate-900' : 'border-slate-200'}`}>
                           <table className="w-full border-collapse text-[10px]">
                             <thead>
-                              <tr className="bg-slate-100 dark:bg-slate-950 text-slate-500 font-bold uppercase tracking-wider text-left border-b border-slate-200 dark:border-slate-800">
+                              <tr className={`text-slate-500 font-bold uppercase tracking-wider text-left border-b ${
+                                darkMode ? 'bg-slate-950 border-slate-900' : 'bg-slate-100 border-slate-205'
+                              }`}>
                                 {viewingDataset.columns.map((c: any, i: number) => (
-                                  <th key={i} className="px-4 py-2 border-b border-slate-200 dark:border-slate-800">{c.name}</th>
+                                  <th key={i} className="px-4 py-2">{c.name}</th>
                                 ))}
                               </tr>
                             </thead>
                             <tbody>
                               {viewingDataset.preview.map((row: any, rowIdx: number) => (
-                                <tr key={rowIdx} className="hover:bg-slate-50 dark:hover:bg-slate-850/50 border-b border-slate-200 dark:border-slate-800">
+                                <tr key={rowIdx} className={`border-b ${
+                                  darkMode ? 'hover:bg-slate-900/50 border-slate-900' : 'hover:bg-slate-50 border-slate-205'
+                                }`}>
                                   {viewingDataset.columns.map((c: any, colIdx: number) => (
-                                    <td key={colIdx} className="px-4 py-2 font-mono text-slate-300">{row[c.name] ?? ''}</td>
+                                    <td key={colIdx} className={`px-4 py-2 font-mono ${darkMode ? 'text-slate-350' : 'text-slate-700'}`}>{row[c.name] ?? ''}</td>
                                   ))}
                                 </tr>
                               ))}
@@ -1130,7 +1178,11 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={exportRunsToCSV}
-                    className="px-3.5 py-2 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-850 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                    className={`px-3.5 py-2 rounded-lg border text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors ${
+                      darkMode 
+                        ? 'border-slate-800 text-slate-350 hover:bg-slate-800 hover:text-white' 
+                        : 'border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-900'
+                    }`}
                   >
                     <FileSpreadsheet size={14} />
                     <span>Export CSV</span>
@@ -1152,10 +1204,14 @@ export default function DashboardPage() {
                   No execution audits logged in the workspace database. Run a pipeline from the Sandbox tab.
                 </div>
               ) : (
-                <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/40">
+                 <div className={`overflow-x-auto border rounded-xl ${
+                  darkMode ? 'border-slate-900 bg-slate-950/20' : 'border-slate-205 bg-white'
+                }`}>
                   <table className="w-full border-collapse text-xs">
                     <thead>
-                      <tr className="bg-slate-100 dark:bg-slate-950 text-slate-500 font-bold uppercase tracking-wider text-left border-b border-slate-200 dark:border-slate-850">
+                      <tr className={`text-slate-500 font-bold uppercase tracking-wider text-left border-b ${
+                        darkMode ? 'bg-slate-950 border-slate-900' : 'bg-slate-100 border-slate-205'
+                      }`}>
                         <th className="px-4 py-3">Run ID</th>
                         <th className="px-4 py-3">Pipeline</th>
                         <th className="px-4 py-3">Triggered By</th>
@@ -1166,10 +1222,12 @@ export default function DashboardPage() {
                     </thead>
                     <tbody>
                       {runs.map((run) => (
-                        <tr key={run.id} className="hover:bg-slate-50 dark:hover:bg-slate-850/30 border-b border-slate-200 dark:border-slate-800">
+                        <tr key={run.id} className={`border-b ${
+                          darkMode ? 'hover:bg-slate-900/30 border-slate-900' : 'hover:bg-slate-50 border-slate-205'
+                        }`}>
                           <td className="px-4 py-3 font-mono text-[10px] text-slate-500 dark:text-slate-400">{run.id}</td>
-                          <td className="px-4 py-3 font-bold text-slate-900 dark:text-slate-200">{run.pipeline?.name || 'N/A'}</td>
-                          <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{run.user?.name || 'N/A'}</td>
+                          <td className={`px-4 py-3 font-bold ${darkMode ? 'text-slate-100' : 'text-slate-900'}`}>{run.pipeline?.name || 'N/A'}</td>
+                          <td className={`px-4 py-3 ${darkMode ? 'text-slate-300' : 'text-slate-650'}`}>{run.user?.name || 'N/A'}</td>
                           <td className="px-4 py-3">
                             <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                               run.status === 'Success' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'
@@ -1193,22 +1251,30 @@ export default function DashboardPage() {
           {activeTab === 'settings' && (
             <div className="p-8 max-w-3xl mx-auto space-y-6 animate-in fade-in duration-200">
               
-              <div className="glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/50 space-y-6">
-                <h3 className="font-extrabold text-sm uppercase tracking-wider text-teal-400 flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
+              <div className={`p-6 rounded-2xl border space-y-6 ${
+                darkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-white border-slate-200'
+              }`}>
+                <h3 className="font-extrabold text-sm uppercase tracking-wider text-teal-400 flex items-center gap-2 border-b border-slate-800 pb-3">
                   <SettingsIcon size={16} />
                   Workspace Settings
                 </h3>
 
                 <div className="space-y-4">
                   {/* Theme Toggle */}
-                  <div className="flex items-center justify-between border-b border-slate-150 dark:border-slate-850 pb-4">
+                  <div className={`flex items-center justify-between border-b pb-4 ${
+                    darkMode ? 'border-slate-800' : 'border-slate-150'
+                  }`}>
                     <div>
-                      <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">Dark Mode Interface</h4>
-                      <p className="text-[10px] text-slate-400 font-medium">Switch between high contrast dark mode and light mode aesthetics.</p>
+                      <h4 className={`text-xs font-bold ${darkMode ? 'text-slate-100' : 'text-slate-800'}`}>Dark Mode Interface</h4>
+                      <p className="text-[10px] text-slate-400 font-medium font-sans">Switch between high contrast dark mode and light mode aesthetics.</p>
                     </div>
                     <button
                       onClick={() => setDarkMode(!darkMode)}
-                      className="px-3.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-xs font-bold bg-slate-100 dark:bg-slate-850 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                      className={`px-3.5 py-1.5 rounded-lg border text-xs font-bold cursor-pointer transition-colors ${
+                        darkMode 
+                          ? 'border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800' 
+                          : 'border-slate-205 bg-slate-100 text-slate-650 hover:bg-slate-200'
+                      }`}
                     >
                       {darkMode ? 'Switch to Light' : 'Switch to Dark'}
                     </button>
@@ -1216,15 +1282,17 @@ export default function DashboardPage() {
 
                   {/* Account Metadata */}
                   <div>
-                    <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 mb-2">Active Session Details</h4>
-                    <div className="p-4 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-850/80 space-y-3 font-mono text-[10px]">
+                    <h4 className={`text-xs font-bold mb-2 ${darkMode ? 'text-slate-100' : 'text-slate-800'}`}>Active Session Details</h4>
+                    <div className={`p-4 rounded-xl border space-y-3 font-mono text-[10px] ${
+                      darkMode ? 'bg-slate-950 border-slate-900' : 'bg-slate-100 border-slate-205'
+                    }`}>
                       <div className="flex justify-between">
                         <span className="text-slate-500">Operator Username:</span>
-                        <span className="text-slate-800 dark:text-slate-200 font-bold">{user?.name}</span>
+                        <span className={`font-bold ${darkMode ? 'text-slate-200' : 'text-slate-800'}`}>{user?.name}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-500">Operator Email:</span>
-                        <span className="text-slate-800 dark:text-slate-200 font-bold">{user?.email}</span>
+                        <span className={`font-bold ${darkMode ? 'text-slate-200' : 'text-slate-800'}`}>{user?.email}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-500">Authorization Scope:</span>
@@ -1232,7 +1300,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-500">Engine API Node:</span>
-                        <span className="text-slate-400">{API_BASE}</span>
+                        <span className="text-slate-450">{API_BASE}</span>
                       </div>
                     </div>
                   </div>
