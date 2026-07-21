@@ -71,6 +71,7 @@ export default function DashboardPage() {
   const startMouse = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const animationFrameId = useRef<number | null>(null);
   const draggedNodeId = useRef<string | null>(null);
+  const cameraZoom = useRef<number>(1.0);
 
   const getGeneratedPythonCode = (node: GraphNode) => {
     if (!node) return '';
@@ -329,6 +330,13 @@ print("Performance visualization report saved as 'performance_report.png'.")
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // Scroll to Zoom logic
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      cameraZoom.current = Math.max(0.4, Math.min(2.5, cameraZoom.current - e.deltaY * 0.001));
+    };
+    canvas.addEventListener('wheel', handleWheel, { passive: false });
+
     // Handle canvas dimensions
     const resizeCanvas = () => {
       const parent = canvas.parentElement;
@@ -350,9 +358,8 @@ print("Performance visualization report saved as 'performance_report.png'.")
       const centerY = canvas.height / 2;
       const fov = 350;
 
-      // 1. Calculate projected 3D nodes coordinates
-      const projectedNodes: ProjectedNode[] = activeNodes.map(node => {
-        // Fetch 3D coords or assign default layout in 3D coordinate space
+      // 1. Calculate centroid and projected 3D nodes coordinates
+      const resolvedNodes = activeNodes.map(node => {
         let x3d = (node.x !== undefined && node.x !== 0) ? node.x : 0;
         let y3d = (node.y !== undefined && node.y !== 0) ? node.y : 0;
         let z3d = 0;
@@ -368,21 +375,41 @@ print("Performance visualization report saved as 'performance_report.png'.")
           else if (node.type === 'AIModel') { z3d = -60; }
           else if (node.type === 'Output') { z3d = 0; }
         }
+        return { node, x3d, y3d, z3d };
+      });
+
+      // Compute geometric center (centroid) of the layout
+      let sumX = 0, sumY = 0, sumZ = 0;
+      resolvedNodes.forEach(rn => {
+        sumX += rn.x3d;
+        sumY += rn.y3d;
+        sumZ += rn.z3d;
+      });
+      const count = resolvedNodes.length || 1;
+      const centroidX = sumX / count;
+      const centroidY = sumY / count;
+      const centroidZ = sumZ / count;
+
+      const projectedNodes: ProjectedNode[] = resolvedNodes.map(rn => {
+        // Shift relative to layout centroid to center entire group on screen
+        const rx = rn.x3d - centroidX;
+        const ry = rn.y3d - centroidY;
+        const rz = rn.z3d - centroidZ;
 
         // Y-axis rotation
-        let x = x3d * Math.cos(angleY.current) - z3d * Math.sin(angleY.current);
-        let z = x3d * Math.sin(angleY.current) + z3d * Math.cos(angleY.current);
+        let x = rx * Math.cos(angleY.current) - rz * Math.sin(angleY.current);
+        let z = rx * Math.sin(angleY.current) + rz * Math.cos(angleY.current);
         // X-axis rotation
-        let y = y3d * Math.cos(angleX.current) - z * Math.sin(angleX.current);
-        z = y3d * Math.sin(angleX.current) + z * Math.cos(angleX.current);
+        let y = ry * Math.cos(angleX.current) - z * Math.sin(angleX.current);
+        z = ry * Math.sin(angleX.current) + z * Math.cos(angleX.current);
 
-        // Perspective Division scaling
-        const scale = fov / (fov + z);
+        // Perspective Division scaling with camera zoom
+        const scale = (fov / (fov + z)) * cameraZoom.current;
         const screenX = centerX + x * scale;
         const screenY = centerY + y * scale;
 
         return {
-          ...node,
+          ...rn.node,
           screenX,
           screenY,
           projectedZ: z,
@@ -538,6 +565,7 @@ print("Performance visualization report saved as 'performance_report.png'.")
 
     return () => {
       window.removeEventListener('resize', resizeCanvas);
+      canvas.removeEventListener('wheel', handleWheel);
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
       }
@@ -586,9 +614,9 @@ print("Performance visualization report saved as 'performance_report.png'.")
         const currentX = (node.x !== undefined && node.x !== 0) ? node.x : (node.type === 'Ingest' ? -160 : node.type === 'Preprocess' ? -50 : node.type === 'AIModel' ? 50 : 160);
         const currentY = (node.y !== undefined && node.y !== 0) ? node.y : (node.type === 'Ingest' ? -30 : node.type === 'Preprocess' ? 40 : node.type === 'AIModel' ? -40 : 30);
         
-        // Simple scaling: dragging on viewport coordinates maps directly to 3D space
-        const newX = currentX + dx * 1.2;
-        const newY = currentY + dy * 1.2;
+        // Simple scaling: dragging on viewport coordinates maps directly to 3D space with safe constraints
+        const newX = Math.max(-220, Math.min(220, currentX + dx * 1.0));
+        const newY = Math.max(-120, Math.min(120, currentY + dy * 1.0));
         
         // Optimistic UI update in the store (persist = false to avoid flood api calls)
         updateNodePosition(node.id, newX, newY, false);
@@ -1374,6 +1402,7 @@ print("Performance visualization report saved as 'performance_report.png'.")
                       onClick={() => {
                         angleX.current = -0.3;
                         angleY.current = 0.4;
+                        cameraZoom.current = 1.0;
                       }}
                       title="Reset Camera Angle"
                       className={`p-1.5 rounded-lg border text-[9px] font-extrabold uppercase tracking-wide flex items-center gap-1 transition-all cursor-pointer ${
