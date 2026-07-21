@@ -1191,16 +1191,16 @@ print("Performance visualization report saved as 'performance_report.png'.")
         {/* Dynamic Inner views Content */}
         <div className="flex-1 overflow-y-auto min-h-0">
           
-          {/* TAB 1: AGENT PLAYGROUND (CHAT + INTERACTIVE NODE GRAPH SPLIT VIEW) */}
+          {/* TAB 1: AGENT PLAYGROUND (CHAT & INTERACTIVE NODE GRAPH VERTICAL VIEW) */}
           {activeTab === 'playground' && (
-            <div className="h-full flex flex-col lg:flex-row min-h-0">
+            <div className="space-y-6 p-6 max-w-6xl mx-auto animate-in fade-in duration-200">
               
-              {/* Left Panel: Chat Console & Live Logger */}
-              <div className={`w-full lg:w-80 xl:w-96 border-r ${
-                darkMode ? 'border-slate-900 bg-slate-950/40' : 'border-slate-200 bg-white/30'
-              } flex flex-col shrink-0 h-[380px] lg:h-full`}>
+              {/* Top Panel: Chat Console & Live Logger Card */}
+              <div className={`glass-panel p-5 rounded-2xl border ${
+                darkMode ? 'border-slate-800 bg-slate-900/40 text-slate-100' : 'border-slate-200 bg-white/30 text-slate-900'
+              } flex flex-col space-y-4`}>
                 {/* Chat window */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                <div className="overflow-y-auto max-h-72 space-y-4 p-1">
                   {chatMessages.map((msg, i) => (
                     <div key={i} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
                       <div className={`p-3.5 rounded-xl max-w-[85%] text-xs leading-relaxed border ${
@@ -1296,8 +1296,8 @@ print("Performance visualization report saved as 'performance_report.png'.")
               </div>
 
               {/* Right Panel: Interactive 3D Canvas Graph Panel */}
-              <div className={`flex-1 flex flex-col lg:flex-row relative min-w-0 ${
-                darkMode ? 'bg-slate-950/20' : 'bg-slate-50/10'
+              <div className={`glass-panel rounded-2xl border relative overflow-hidden min-h-[500px] flex flex-col lg:flex-row ${
+                darkMode ? 'border-slate-800 bg-slate-900/20 text-slate-100' : 'border-slate-200 bg-white text-slate-900'
               }`}>
                 {/* Glowing ambient background blob behind canvas */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none select-none opacity-20">
