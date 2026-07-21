@@ -668,7 +668,7 @@ export default function DashboardPage() {
               <Activity className="text-white" size={18} />
             </div>
             <div>
-              <h2 className="font-extrabold text-sm tracking-tight text-slate-900 dark:text-white">
+              <h2 className={`font-extrabold text-sm tracking-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>
                 Mind<span className="text-teal-500">Mesh</span>
               </h2>
               <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">AI Playground</span>
@@ -747,8 +747,8 @@ export default function DashboardPage() {
                 <UserIcon size={14} />
               </div>
               <div className="truncate w-32">
-                <div className="font-extrabold text-[11px] truncate text-slate-800 dark:text-slate-200">{user?.name}</div>
-                <div className="text-[9px] text-slate-400 font-semibold">{user?.role} Access</div>
+                <div className={`font-extrabold text-[11px] truncate ${darkMode ? 'text-slate-200' : 'text-slate-900'}`}>{user?.name}</div>
+                <div className={`text-[9px] font-semibold ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>{user?.role} Access</div>
               </div>
             </div>
             
