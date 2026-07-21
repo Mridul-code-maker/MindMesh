@@ -686,7 +686,10 @@ export default function DashboardPage() {
           </div>
 
           <button
-            onClick={logout}
+            onClick={() => {
+              logout();
+              router.push('/login');
+            }}
             className="w-full py-2 rounded-lg bg-red-950/20 hover:bg-red-950/40 text-red-500 text-[10px] font-bold tracking-wide flex items-center justify-center gap-2 border border-red-900/30 transition-all cursor-pointer"
           >
             <LogOut size={12} />
