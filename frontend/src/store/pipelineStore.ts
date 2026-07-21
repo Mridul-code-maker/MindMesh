@@ -83,6 +83,8 @@ interface PipelineState {
   addNode: (node: GraphNode) => void;
   deleteNode: (nodeId: string) => void;
   addEdge: (edge: GraphEdge) => void;
+  updateNodePosition: (nodeId: string, x: number, y: number, persist?: boolean) => void;
+  updateNodeProperties: (nodeId: string, properties: any) => void;
 }
 
 export const usePipelineStore = create<PipelineState>((set, get) => ({
@@ -329,5 +331,23 @@ export const usePipelineStore = create<PipelineState>((set, get) => ({
     const newEdges = [...activeEdges, edge];
     set({ activeEdges: newEdges });
     updatePipeline(activePipeline.id, undefined, activeNodes, newEdges);
+  },
+
+  updateNodePosition: (nodeId, x, y, persist = false) => {
+    const { activePipeline, activeNodes, activeEdges, updatePipeline } = get();
+    if (!activePipeline) return;
+    const newNodes = activeNodes.map(n => n.id === nodeId ? { ...n, x, y } : n);
+    set({ activeNodes: newNodes });
+    if (persist) {
+      updatePipeline(activePipeline.id, undefined, newNodes, activeEdges);
+    }
+  },
+
+  updateNodeProperties: (nodeId, properties) => {
+    const { activePipeline, activeNodes, activeEdges, updatePipeline } = get();
+    if (!activePipeline) return;
+    const newNodes = activeNodes.map(n => n.id === nodeId ? { ...n, properties: { ...n.properties, ...properties } } : n);
+    set({ activeNodes: newNodes });
+    updatePipeline(activePipeline.id, undefined, newNodes, activeEdges);
   },
 }));
