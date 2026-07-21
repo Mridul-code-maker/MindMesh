@@ -1156,14 +1156,14 @@ print("Performance visualization report saved as 'performance_report.png'.")
           
           {/* TAB 1: AGENT PLAYGROUND (CHAT + INTERACTIVE NODE GRAPH SPLIT VIEW) */}
           {activeTab === 'playground' && (
-            <div className="h-full flex flex-col xl:flex-row min-h-0">
+            <div className="h-full flex flex-col lg:flex-row min-h-0">
               
               {/* Left Panel: Chat Console & Live Logger */}
-              <div className={`w-full xl:w-96 border-r ${
+              <div className={`w-full lg:w-80 xl:w-96 border-r ${
                 darkMode ? 'border-slate-900 bg-slate-950/40' : 'border-slate-200 bg-white/30'
-              } flex flex-col shrink-0 min-h-[350px] xl:min-h-0`}>
+              } flex flex-col shrink-0 h-[380px] lg:h-full`}>
                 {/* Chat window */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[300px] xl:max-h-none">
+                <div className="flex-1 overflow-y-auto p-4 space-y-4">
                   {chatMessages.map((msg, i) => (
                     <div key={i} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
                       <div className={`p-3.5 rounded-xl max-w-[85%] text-xs leading-relaxed border ${
