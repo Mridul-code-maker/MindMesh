@@ -52,6 +52,7 @@ export default function DashboardPage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [angleX, setAngleX] = useState<number>(-0.3);
   const [angleY, setAngleY] = useState<number>(0.4);
+  const [spinSpeed, setSpinSpeed] = useState<'off' | 'slow' | 'fast'>('slow');
   const isDragging = useRef<boolean>(false);
   const startMouse = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const animationFrameId = useRef<number | null>(null);
@@ -316,7 +317,10 @@ export default function DashboardPage() {
 
       // Keep rotating slowly if not dragging
       if (!isDragging.current && !running) {
-        setAngleY(prev => prev + 0.001);
+        const step = spinSpeed === 'slow' ? 0.001 : spinSpeed === 'fast' ? 0.004 : 0;
+        if (step > 0) {
+          setAngleY(prev => prev + step);
+        }
       }
 
       animationFrameId.current = requestAnimationFrame(render);
@@ -330,7 +334,7 @@ export default function DashboardPage() {
         cancelAnimationFrame(animationFrameId.current);
       }
     };
-  }, [activeNodes, activeEdges, angleX, angleY, activeStepStatuses, running, selectedNode, darkMode, activeTab]);
+  }, [activeNodes, activeEdges, angleX, angleY, activeStepStatuses, running, selectedNode, darkMode, activeTab, spinSpeed]);
 
   // Drag-to-Rotate handlers
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -854,9 +858,86 @@ export default function DashboardPage() {
               </div>
 
               {/* Right Panel: Interactive 3D Canvas Graph Panel */}
-              <div className="flex-1 flex flex-col lg:flex-row relative grid-bg min-w-0">
+              <div className={`flex-1 flex flex-col lg:flex-row relative min-w-0 ${
+                darkMode ? 'bg-slate-950/20' : 'bg-slate-50/10'
+              }`}>
+                {/* Glowing ambient background blob behind canvas */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none select-none opacity-20">
+                  <div className="absolute top-1/4 left-1/4 h-80 w-80 rounded-full bg-teal-500/10 blur-[120px]" />
+                  <div className="absolute bottom-1/4 right-1/4 h-80 w-80 rounded-full bg-indigo-500/10 blur-[120px]" />
+                </div>
+
                 {/* 3D Canvas Visualizer */}
-                <div className="flex-1 relative min-h-[400px]">
+                <div className="flex-1 relative min-h-[400px] grid-bg">
+                  
+                  {/* High-tech Sci-Fi HUD corners decoration */}
+                  <div className="absolute top-3 left-3 h-3 w-3 border-t-2 border-l-2 border-teal-500/60 pointer-events-none" />
+                  <div className="absolute top-3 right-3 h-3 w-3 border-t-2 border-r-2 border-teal-500/60 pointer-events-none" />
+                  <div className="absolute bottom-3 left-3 h-3 w-3 border-b-2 border-l-2 border-teal-500/60 pointer-events-none" />
+                  <div className="absolute bottom-3 right-3 h-3 w-3 border-b-2 border-r-2 border-teal-500/60 pointer-events-none" />
+
+                  {/* 1. Sci-Fi Telemetry HUD (Top Left Overlay) */}
+                  <div className={`absolute top-5 left-5 p-3 rounded-xl border font-mono text-[9px] space-y-1 select-none pointer-events-none ${
+                    darkMode ? 'border-slate-800 bg-slate-900/80 text-slate-350' : 'border-slate-205 bg-white/80 text-slate-600'
+                  } shadow-md backdrop-blur-md z-10 hidden sm:block animate-in fade-in duration-300`}>
+                    <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-teal-400 border-b border-slate-800 pb-1 mb-1.5">
+                      <Activity size={10} className="animate-pulse" />
+                      SYSTEM STATUS: ONLINE
+                    </div>
+                    <div className="flex gap-2 justify-between">
+                      <span className="text-slate-500 text-[8px]">ENGINE:</span>
+                      <span className="font-bold">3D VECTOR GRAPH v1.2</span>
+                    </div>
+                    <div className="flex gap-2 justify-between">
+                      <span className="text-slate-500 text-[8px]">CAMERA:</span>
+                      <span className="font-bold text-indigo-400 text-[8px]">PERSPECTIVE DEPTH</span>
+                    </div>
+                    <div className="flex gap-2 justify-between">
+                      <span className="text-slate-500 text-[8px]">ACCENTS:</span>
+                      <span className="font-bold text-emerald-400 text-[8px]">RESILIENT GLOW</span>
+                    </div>
+                  </div>
+
+                  {/* 2. Camera Controls & Auto-spin Dashboard (Top Right Overlay) */}
+                  <div className={`absolute top-5 right-5 p-2 rounded-xl border flex gap-1.5 items-center ${
+                    darkMode ? 'border-slate-800 bg-slate-900/80 text-slate-300' : 'border-slate-205 bg-white/80 text-slate-700'
+                  } shadow-md backdrop-blur-md z-10 animate-in fade-in duration-300`}>
+                    
+                    {/* Reset button */}
+                    <button 
+                      onClick={() => {
+                        setAngleX(-0.3);
+                        setAngleY(0.4);
+                      }}
+                      title="Reset Camera Angle"
+                      className={`p-1.5 rounded-lg border text-[9px] font-extrabold uppercase tracking-wide flex items-center gap-1 transition-all cursor-pointer ${
+                        darkMode 
+                          ? 'border-slate-800 hover:bg-slate-850 text-slate-300 hover:text-white' 
+                          : 'border-slate-200 hover:bg-slate-100 text-slate-650 hover:text-slate-900'
+                      }`}
+                    >
+                      <RefreshCw size={10} />
+                      <span>Reset</span>
+                    </button>
+
+                    {/* Speed select deck */}
+                    <div className="flex rounded-lg border border-slate-700 bg-slate-950 p-0.5 text-[8px] font-bold">
+                      {(['off', 'slow', 'fast'] as const).map(speed => (
+                        <button
+                          key={speed}
+                          onClick={() => setSpinSpeed(speed)}
+                          className={`px-2 py-1 rounded-md uppercase tracking-wider transition-all cursor-pointer ${
+                            spinSpeed === speed
+                              ? 'bg-teal-600 text-white shadow-sm'
+                              : 'text-slate-500 hover:text-slate-300'
+                          }`}
+                        >
+                          {speed}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   <canvas
                     ref={canvasRef}
                     onMouseDown={handleMouseDown}
@@ -864,12 +945,12 @@ export default function DashboardPage() {
                     onMouseUp={handleMouseUpOrLeave}
                     onMouseLeave={handleMouseUpOrLeave}
                     onClick={handleCanvasClick}
-                    className="w-full h-full min-h-[400px] cursor-grab active:cursor-grabbing block"
+                    className="w-full h-full min-h-[400px] cursor-grab active:cursor-grabbing block relative z-0"
                     title="Drag to rotate 3D node network"
                   />
 
                   {/* 3D Perspective Rotation Tutorial Overlay Tip */}
-                  <div className="absolute bottom-3 left-3 px-2 py-1 rounded bg-slate-900/60 backdrop-blur border border-slate-800/80 text-[8px] font-bold uppercase tracking-wider text-slate-400 pointer-events-none select-none">
+                  <div className="absolute bottom-3 left-3 px-2.5 py-1 rounded-lg bg-slate-900/70 backdrop-blur border border-slate-800/80 text-[8px] font-bold uppercase tracking-wider text-slate-400 pointer-events-none select-none">
                     Drag mouse to rotate pipeline in 3D
                   </div>
                 </div>
