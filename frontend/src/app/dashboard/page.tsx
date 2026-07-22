@@ -1295,7 +1295,7 @@ print("Performance visualization report saved as 'performance_report.png'.")
       <aside className={`w-64 border-r ${darkMode ? 'border-slate-900 bg-slate-900/60' : 'border-slate-200 bg-white'} backdrop-blur-md flex flex-col justify-between shrink-0`}>
         <div>
           {/* Header Branding */}
-          <div className={`p-6 border-b flex items-center gap-3 ${darkMode ? 'border-slate-900/80' : 'border-slate-150'}`}>
+          <div className={`p-6 border-b flex items-center gap-3 ${darkMode ? 'border-slate-900/80' : 'border-slate-200'}`}>
             <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-teal-600 to-teal-450 flex items-center justify-center shadow-md shadow-teal-500/20">
               <Activity className="text-white" size={18} />
             </div>
@@ -1548,7 +1548,7 @@ print("Performance visualization report saved as 'performance_report.png'.")
                         className={`px-2.5 py-1.5 text-[10px] font-bold rounded-lg border shrink-0 cursor-pointer transition-all ${
                           darkMode 
                             ? 'border-slate-800 bg-slate-900 text-slate-300 hover:border-teal-500/50 hover:bg-slate-800' 
-                            : 'border-slate-205 bg-white text-slate-700 hover:border-teal-500/30 hover:bg-slate-55'
+                            : 'border-slate-200 bg-white text-slate-700 hover:border-teal-500/30 hover:bg-slate-50'
                         }`}
                       >
                         {card.label}
@@ -1675,27 +1675,35 @@ print("Performance visualization report saved as 'performance_report.png'.")
                       <div className="h-4 w-px bg-slate-800" />
 
                       {/* Speed configuration pill group */}
-                      <div className="flex bg-slate-950 p-0.5 rounded-lg text-[8px] font-bold border border-slate-900">
+                      <div className={`flex p-0.5 rounded-lg text-[8px] font-bold border transition-colors ${
+                        darkMode ? 'bg-slate-950 border-slate-900' : 'bg-slate-100 border-slate-200'
+                      }`}>
                         <button
                           onClick={() => setSpinSpeed('off')}
-                          className={`px-2 py-1 rounded cursor-pointer transition-colors ${
-                            spinSpeed === 'off' ? 'bg-teal-650 text-white' : 'text-slate-500 hover:text-slate-400'
+                          className={`px-2 py-1 rounded cursor-pointer transition-all ${
+                            spinSpeed === 'off' 
+                              ? 'bg-teal-600 text-white shadow-sm' 
+                              : `${darkMode ? 'text-slate-500 hover:text-slate-300' : 'text-slate-600 hover:text-slate-900'}`
                           }`}
                         >
                           OFF
                         </button>
                         <button
                           onClick={() => setSpinSpeed('slow')}
-                          className={`px-2 py-1 rounded cursor-pointer transition-colors ${
-                            spinSpeed === 'slow' ? 'bg-teal-650 text-white' : 'text-slate-550 hover:text-slate-400'
+                          className={`px-2 py-1 rounded cursor-pointer transition-all ${
+                            spinSpeed === 'slow' 
+                              ? 'bg-teal-600 text-white shadow-sm' 
+                              : `${darkMode ? 'text-slate-500 hover:text-slate-300' : 'text-slate-600 hover:text-slate-900'}`
                           }`}
                         >
                           SLOW
                         </button>
                         <button
                           onClick={() => setSpinSpeed('fast')}
-                          className={`px-2 py-1 rounded cursor-pointer transition-colors ${
-                            spinSpeed === 'fast' ? 'bg-teal-650 text-white' : 'text-slate-550 hover:text-slate-400'
+                          className={`px-2 py-1 rounded cursor-pointer transition-all ${
+                            spinSpeed === 'fast' 
+                              ? 'bg-teal-600 text-white shadow-sm' 
+                              : `${darkMode ? 'text-slate-500 hover:text-slate-300' : 'text-slate-600 hover:text-slate-900'}`
                           }`}
                         >
                           FAST
@@ -1720,17 +1728,19 @@ print("Performance visualization report saved as 'performance_report.png'.")
 
                     {/* Canvas Floating Control Bar (Add / Connect buttons inside Canvas space!) */}
                     <div className={`absolute bottom-5 right-5 p-2 rounded-xl border flex gap-1.5 items-center ${
-                      darkMode ? 'border-slate-800 bg-slate-900/80 text-slate-350' : 'border-slate-205 bg-white/80 text-slate-700'
+                      darkMode ? 'border-slate-800 bg-slate-900/80 text-slate-300' : 'border-slate-200 bg-white/80 text-slate-700'
                     } shadow-md backdrop-blur-md z-10 font-sans text-[10px] font-bold`}>
-                      <span className="text-slate-500 mr-1 uppercase text-[8px] tracking-wider font-mono">Editor:</span>
+                      <span className={`${darkMode ? 'text-slate-400' : 'text-slate-600'} mr-1 uppercase text-[8px] tracking-wider font-mono`}>Editor:</span>
                       
                       {/* Add node dropdown menu toggle */}
                       <div className="relative group">
-                        <button className="px-2.5 py-1 bg-teal-650 hover:bg-teal-600 text-white rounded-lg flex items-center gap-1 cursor-pointer transition-all">
+                        <button className="px-2.5 py-1 bg-teal-650 hover:bg-teal-600 text-white rounded-lg flex items-center gap-1 cursor-pointer transition-all shadow-sm">
                           <span>+ Add Node</span>
                         </button>
                         
-                        <div className="absolute right-0 bottom-full mb-1.5 w-32 bg-slate-950 border border-slate-800 rounded-lg shadow-xl hidden group-hover:block z-25 p-1 space-y-0.5 animate-in fade-in duration-150">
+                        <div className={`absolute right-0 bottom-full mb-1.5 w-32 rounded-lg border shadow-xl hidden group-hover:block z-25 p-1 space-y-0.5 animate-in fade-in duration-150 ${
+                          darkMode ? 'bg-slate-950 border-slate-800 text-slate-200' : 'bg-white border-slate-200 text-slate-800'
+                        }`}>
                           {(['Ingest', 'Preprocess', 'AIModel', 'Output'] as const).map(nodeType => (
                             <button
                               key={nodeType}
@@ -1751,9 +1761,13 @@ print("Performance visualization report saved as 'performance_report.png'.")
                                   properties: nodeType === 'Preprocess' ? { dropNulls: true } : nodeType === 'AIModel' ? { modelType: 'Random Forest', estimators: 100, maxDepth: 10, learningRate: 0.1 } : {}
                                 });
                               }}
-                              className="w-full text-left px-2 py-1.5 rounded text-[8px] hover:bg-slate-800 hover:text-white cursor-pointer text-slate-350 font-bold tracking-wide"
+                              className={`w-full text-left px-2 py-1.5 rounded text-[8px] cursor-pointer font-bold tracking-wide transition-colors ${
+                                darkMode 
+                                  ? 'hover:bg-slate-800 hover:text-white text-slate-300' 
+                                  : 'hover:bg-slate-100 hover:text-slate-900 text-slate-650'
+                              }`}
                             >
-                              {nodeType}
+                              + {nodeType}
                             </button>
                           ))}
                         </div>
@@ -1768,7 +1782,7 @@ print("Performance visualization report saved as 'performance_report.png'.")
                         className={`px-2.5 py-1 rounded-lg border cursor-pointer transition-all ${
                           isConnectingMode 
                             ? 'bg-amber-600 border-amber-500 text-white animate-pulse' 
-                            : `${darkMode ? 'border-slate-850 hover:bg-slate-800 text-slate-300' : 'border-slate-200 hover:bg-slate-105 text-slate-650'}`
+                            : `${darkMode ? 'border-slate-800 hover:bg-slate-800 text-slate-300' : 'border-slate-200 hover:bg-slate-100 text-slate-600'}`
                         }`}
                       >
                         {isConnectingMode ? 'Click Target Node...' : '🔗 Connect Nodes'}
@@ -1798,7 +1812,7 @@ print("Performance visualization report saved as 'performance_report.png'.")
                 ) : (
                   /* Full-Screen AutoML Evaluation Dashboard view */
                   <div className={`flex-1 p-6 overflow-y-auto space-y-6 pt-16 animate-in fade-in duration-300 ${
-                    darkMode ? 'bg-slate-950/90 text-slate-100' : 'bg-slate-55 text-slate-900'
+                    darkMode ? 'bg-slate-950/90 text-slate-100' : 'bg-slate-50 text-slate-900'
                   }`}>
                     {/* Header */}
                     <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-800 pb-4">
@@ -1881,45 +1895,45 @@ print("Performance visualization report saved as 'performance_report.png'.")
                                   <th className="p-3">Complexity Status</th>
                                 </tr>
                               </thead>
-                              <tbody className="divide-y divide-slate-850 font-medium">
+                              <tbody className="divide-y divide-slate-800 font-medium">
                                 {/* XGBoost */}
-                                <tr className={darkMode ? 'hover:bg-slate-900/20 text-slate-200' : 'hover:bg-slate-55 text-slate-800'}>
+                                <tr className={darkMode ? 'hover:bg-slate-900/20 text-slate-200' : 'hover:bg-slate-50 text-slate-800'}>
                                   <td className="p-3 text-emerald-400 font-black">#1</td>
                                   <td className="p-3 font-bold flex items-center gap-1.5">🚀 XGBoost Regressor <span className="text-[8px] bg-emerald-950/40 text-emerald-400 border border-emerald-500/20 px-1 py-0.2 rounded font-black">Champion</span></td>
                                   <td className="p-3 text-right text-emerald-400 font-black">0.890</td>
                                   <td className="p-3 text-right text-slate-400">14.15</td>
                                   <td className="p-3 text-right text-slate-400">1.2s</td>
-                                  <td className="p-3 text-slate-450 text-[9px]">100 Trees (Depth 6)</td>
+                                  <td className="p-3 text-slate-400 text-[9px]">100 Trees (Depth 6)</td>
                                 </tr>
 
                                 {/* Random Forest */}
-                                <tr className={darkMode ? 'hover:bg-slate-900/20 text-slate-200' : 'hover:bg-slate-55 text-slate-800'}>
+                                <tr className={darkMode ? 'hover:bg-slate-900/20 text-slate-200' : 'hover:bg-slate-50 text-slate-800'}>
                                   <td className="p-3 text-teal-400 font-black">#2</td>
                                   <td className="p-3 font-bold">🌲 Random Forest Regressor</td>
                                   <td className="p-3 text-right text-teal-400 font-black">0.842</td>
                                   <td className="p-3 text-right text-slate-400">18.42</td>
                                   <td className="p-3 text-right text-slate-400">1.8s</td>
-                                  <td className="p-3 text-slate-450 text-[9px]">200 Trees (Depth 10)</td>
+                                  <td className="p-3 text-slate-400 text-[9px]">200 Trees (Depth 10)</td>
                                 </tr>
 
                                 {/* SVM */}
-                                <tr className={darkMode ? 'hover:bg-slate-900/20 text-slate-200' : 'hover:bg-slate-55 text-slate-800'}>
+                                <tr className={darkMode ? 'hover:bg-slate-900/20 text-slate-200' : 'hover:bg-slate-50 text-slate-800'}>
                                   <td className="p-3 text-purple-400 font-black">#3</td>
                                   <td className="p-3 font-bold">🔮 SVM (Radial SVR)</td>
                                   <td className="p-3 text-right text-purple-400 font-black">0.781</td>
                                   <td className="p-3 text-right text-slate-400">24.89</td>
                                   <td className="p-3 text-right text-slate-400">0.4s</td>
-                                  <td className="p-3 text-slate-450 text-[9px]">Radial Basis (RBF) Kernel</td>
+                                  <td className="p-3 text-slate-400 text-[9px]">Radial Basis (RBF) Kernel</td>
                                 </tr>
 
                                 {/* Linear Regression */}
-                                <tr className={darkMode ? 'hover:bg-slate-900/20 text-slate-200' : 'hover:bg-slate-55 text-slate-800'}>
+                                <tr className={darkMode ? 'hover:bg-slate-900/20 text-slate-200' : 'hover:bg-slate-50 text-slate-800'}>
                                   <td className="p-3 text-indigo-400 font-black">#4</td>
                                   <td className="p-3 font-bold">📈 Linear Regression Model</td>
                                   <td className="p-3 text-right text-indigo-400 font-black">0.725</td>
                                   <td className="p-3 text-right text-slate-400">28.12</td>
                                   <td className="p-3 text-right text-slate-400">0.1s</td>
-                                  <td className="p-3 text-slate-450 text-[9px]">Ordinary Least Squares (OLS)</td>
+                                  <td className="p-3 text-slate-400 text-[9px]">Ordinary Least Squares (OLS)</td>
                                 </tr>
                               </tbody>
                             </table>
@@ -2068,7 +2082,7 @@ print("Performance visualization report saved as 'performance_report.png'.")
                           onClick={() => setDrawerTab('code')}
                           className={`flex-1 py-1 px-1.5 rounded-md text-center transition-all cursor-pointer ${
                             drawerTab === 'code'
-                              ? 'bg-teal-650 text-white shadow-sm'
+                              ? 'bg-teal-600 text-white shadow-sm'
                               : 'text-slate-400 hover:text-slate-300'
                           }`}
                         >
@@ -2084,8 +2098,8 @@ print("Performance visualization report saved as 'performance_report.png'.")
                             </label>
                             <div className={`text-xs font-bold p-2.5 rounded-lg border ${
                               darkMode 
-                                ? 'text-slate-150 bg-slate-900 border-slate-800' 
-                                : 'text-slate-800 bg-slate-105 border-slate-200'
+                                ? 'text-slate-300 bg-slate-900 border-slate-800' 
+                                : 'text-slate-800 bg-slate-100 border-slate-200'
                             }`}>
                               {selectedNode.label}
                             </div>
@@ -3063,7 +3077,7 @@ print(response.json())`}
                 <div className="space-y-4">
                   {/* Theme Toggle */}
                   <div className={`flex items-center justify-between border-b pb-4 ${
-                    darkMode ? 'border-slate-800' : 'border-slate-150'
+                    darkMode ? 'border-slate-800' : 'border-slate-200'
                   }`}>
                     <div>
                       <h4 className={`text-xs font-bold ${darkMode ? 'text-slate-100' : 'text-slate-800'}`}>Dark Mode Interface</h4>
