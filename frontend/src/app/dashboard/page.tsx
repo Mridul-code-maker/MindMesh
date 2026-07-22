@@ -672,7 +672,7 @@ print("Performance visualization report saved as 'performance_report.png'.")
       });
 
       // Apply 2D anti-overlap collision resolution to prevent overlapping nodes on screen
-      for (let iter = 0; iter < 8; iter++) {
+      for (let iter = 0; iter < 4; iter++) {
         for (let i = 0; i < projectedNodes.length; i++) {
           for (let j = i + 1; j < projectedNodes.length; j++) {
             const n1 = projectedNodes[i];
@@ -685,24 +685,26 @@ print("Performance visualization report saved as 'performance_report.png'.")
 
             const dx = n2.screenX - n1.screenX;
             const dy = n2.screenY - n1.screenY;
+            const dist = Math.sqrt(dx * dx + dy * dy) || 0.1;
+
             const minDistX = (w1 + w2) / 2 + 25; // minimum horizontal gap
             const minDistY = (h1 + h2) / 2 + 18; // minimum vertical gap
 
-            if (Math.abs(dx) < minDistX && Math.abs(dy) < minDistY) {
-              // Calculate overlap depths
-              const overlapX = minDistX - Math.abs(dx);
-              const overlapY = minDistY - Math.abs(dy);
+            // Interpolate target minimum distance based on the relative angle to avoid visual jumps
+            const angle = Math.abs(Math.atan2(dy, dx));
+            const targetDist = minDistX * Math.cos(angle) + minDistY * Math.sin(angle);
 
-              // Push in the direction that requires less movement to resolve
-              if (overlapX < overlapY) {
-                const pushX = overlapX * (dx === 0 ? 1 : Math.sign(dx));
-                n1.screenX -= pushX * 0.5;
-                n2.screenX += pushX * 0.5;
-              } else {
-                const pushY = overlapY * (dy === 0 ? 1 : Math.sign(dy));
-                n1.screenY -= pushY * 0.5;
-                n2.screenY += pushY * 0.5;
-              }
+            if (dist < targetDist) {
+              const overlap = targetDist - dist;
+              // Gentle spring force coefficient (0.2) to smooth out sudden jumps and slide naturally
+              const force = (overlap / dist) * 0.2;
+              const pushX = dx * force;
+              const pushY = dy * force;
+
+              n1.screenX -= pushX;
+              n1.screenY -= pushY;
+              n2.screenX += pushX;
+              n2.screenY += pushY;
             }
           }
         }
