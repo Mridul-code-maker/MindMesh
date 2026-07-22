@@ -87,7 +87,7 @@ export default function DashboardPage() {
   const startMouse = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const animationFrameId = useRef<number | null>(null);
   const draggedNodeId = useRef<string | null>(null);
-  const cameraZoom = useRef<number>(1.0);
+  const cameraZoom = useRef<number>(1.25);
 
   const getCorrelation = (colA: string, colB: string) => {
     if (colA === colB) return 1.0;
@@ -689,10 +689,10 @@ print("Performance visualization report saved as 'performance_report.png'.")
             const n1 = projectedNodes[i];
             const n2 = projectedNodes[j];
 
-            const w1 = 120 * n1.scale;
-            const h1 = 55 * n1.scale;
-            const w2 = 120 * n2.scale;
-            const h2 = 55 * n2.scale;
+            const w1 = 135 * n1.scale;
+            const h1 = 62 * n1.scale;
+            const w2 = 135 * n2.scale;
+            const h2 = 62 * n2.scale;
 
             const dx = n2.screenX - n1.screenX;
             const dy = n2.screenY - n1.screenY;
@@ -780,8 +780,8 @@ print("Performance visualization report saved as 'performance_report.png'.")
       const sortedNodes = [...projectedNodes].sort((a, b) => b.projectedZ - a.projectedZ);
 
       sortedNodes.forEach(node => {
-        const width = 120 * node.scale;
-        const height = 55 * node.scale;
+        const width = 135 * node.scale;
+        const height = 62 * node.scale;
         const rx = node.screenX - width / 2;
         const ry = node.screenY - height / 2;
         const status = activeStepStatuses[node.id] || 'Idle';
@@ -808,17 +808,17 @@ print("Performance visualization report saved as 'performance_report.png'.")
         
         // Dynamic solid fills depending on status for high contrast visibility in light mode
         if (status === 'Success') {
-          ctx.fillStyle = darkMode ? 'rgba(16, 185, 129, 0.15)' : '#ecfdf5';
-          ctx.strokeStyle = 'rgba(16, 185, 129, 0.85)';
+          ctx.fillStyle = darkMode ? 'rgba(16, 185, 129, 0.15)' : '#d1fae5';
+          ctx.strokeStyle = 'rgba(16, 185, 129, 0.95)';
         } else if (status === 'Failed') {
-          ctx.fillStyle = darkMode ? 'rgba(239, 68, 68, 0.15)' : '#fef2f2';
-          ctx.strokeStyle = 'rgba(239, 68, 68, 0.85)';
+          ctx.fillStyle = darkMode ? 'rgba(239, 68, 68, 0.15)' : '#fee2e2';
+          ctx.strokeStyle = 'rgba(239, 68, 68, 0.95)';
         } else if (selectedNode?.id === node.id) {
-          ctx.fillStyle = darkMode ? 'rgba(13, 148, 136, 0.15)' : '#f0fdfa';
-          ctx.strokeStyle = 'rgba(13, 148, 136, 0.9)';
+          ctx.fillStyle = darkMode ? 'rgba(13, 148, 136, 0.15)' : '#e0f2fe';
+          ctx.strokeStyle = 'rgba(13, 148, 136, 0.95)';
         } else {
-          ctx.fillStyle = darkMode ? 'rgba(15, 23, 42, 0.95)' : '#ffffff';
-          ctx.strokeStyle = darkMode ? 'rgba(51, 65, 85, 0.8)' : '#94a3b8';
+          ctx.fillStyle = darkMode ? 'rgba(15, 23, 42, 0.95)' : '#f1f5f9';
+          ctx.strokeStyle = darkMode ? 'rgba(51, 65, 85, 0.8)' : '#475569';
         }
         ctx.lineWidth = 1.5;
         ctx.fill();
