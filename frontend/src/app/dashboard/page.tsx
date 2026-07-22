@@ -3159,7 +3159,7 @@ print("Performance visualization report saved as 'performance_report.png'.")
                                     />
                                     <div className="absolute bottom-0 w-3 h-3 bg-slate-950 border border-slate-700 rounded-full" />
                                   </div>
-                                  <span className="text-xl font-black text-teal-400 mt-2">{predVal || '0.00'}</span>
+                                  <span className={`text-xl font-black mt-2 ${darkMode ? 'text-teal-400' : 'text-teal-700'}`}>{predVal || '0.00'}</span>
                                   <span className="text-[8px] text-slate-500 font-mono">Prediction Index Output</span>
                                 </div>
                               );
@@ -3169,7 +3169,9 @@ print("Performance visualization report saved as 'performance_report.png'.")
                             <div className={`p-3.5 rounded-xl border space-y-2.5 ${
                               darkMode ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50 border-slate-200'
                             }`}>
-                              <div className="flex justify-between items-center border-b border-slate-800 pb-1.5">
+                              <div className={`flex justify-between items-center border-b pb-1.5 ${
+                                darkMode ? 'border-slate-800' : 'border-slate-200'
+                              }`}>
                                 <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">REST API Clients</span>
                                 <div className="flex bg-slate-950 p-0.5 rounded-lg border border-slate-800 text-[8px] font-bold">
                                   {(['curl', 'python', 'js'] as const).map((tab) => (
