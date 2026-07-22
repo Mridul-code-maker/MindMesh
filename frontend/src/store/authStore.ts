@@ -2,7 +2,9 @@ import { create } from 'zustand';
 import axios from 'axios';
 
 // Get API base URL
-export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined'
+  ? `${window.location.protocol}//${window.location.hostname}:5000`
+  : 'http://localhost:5000');
 
 // Setup axios default configurations
 export const api = axios.create({
