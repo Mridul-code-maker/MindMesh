@@ -707,15 +707,29 @@ print("Performance visualization report saved as 'performance_report.png'.")
 
             if (dist < targetDist) {
               const overlap = targetDist - dist;
-              // Gentle spring force coefficient (0.2) to smooth out sudden jumps and slide naturally
-              const force = (overlap / dist) * 0.2;
-              const pushX = dx * force;
-              const pushY = dy * force;
+              // k=0.05 resolves overlap gradually over frames for liquid-smooth sliding instead of snapping
+              const k = 0.05;
+              const pushX = (dx / dist) * overlap * k;
+              const pushY = (dy / dist) * overlap * k;
 
-              n1.screenX -= pushX;
-              n1.screenY -= pushY;
-              n2.screenX += pushX;
-              n2.screenY += pushY;
+              const n1Dragged = draggedNodeId.current === n1.id;
+              const n2Dragged = draggedNodeId.current === n2.id;
+
+              if (n1Dragged && !n2Dragged) {
+                // n1 is held by cursor: push n2 away with full force
+                n2.screenX += pushX * 2;
+                n2.screenY += pushY * 2;
+              } else if (n2Dragged && !n1Dragged) {
+                // n2 is held by cursor: push n1 away with full force
+                n1.screenX -= pushX * 2;
+                n1.screenY -= pushY * 2;
+              } else if (!n1Dragged && !n2Dragged) {
+                // Neither is dragged: distribute force equally
+                n1.screenX -= pushX;
+                n1.screenY -= pushY;
+                n2.screenX += pushX;
+                n2.screenY += pushY;
+              }
             }
           }
         }
