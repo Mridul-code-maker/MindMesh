@@ -84,8 +84,8 @@ h1, h2, h3, h4, h5, h6 {
 .grid-bg {
   background-size: 24px 24px;
   background-image: 
-    linear-gradient(to right, hsl(var(--border-primary) / 0.4) 1px, transparent 1px),
-    linear-gradient(to bottom, hsl(var(--border-primary) / 0.4) 1px, transparent 1px);
+    linear-gradient(to right, hsl(var(--border-primary) / 0.75) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--border-primary) / 0.75) 1px, transparent 1px);
 }
 
 .radial-glow {
