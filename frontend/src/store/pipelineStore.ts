@@ -234,7 +234,7 @@ export const usePipelineStore = create<PipelineState>((set, get) => ({
 
     // Establish WebSocket connection
     const socket = io(API_BASE, {
-      transports: ['websocket'],
+      transports: ['polling', 'websocket'],
       reconnectionDelayMax: 10000,
       reconnectionAttempts: 10,
       timeout: 20000
