@@ -814,11 +814,11 @@ print("Performance visualization report saved as 'performance_report.png'.")
           ctx.fillStyle = darkMode ? 'rgba(239, 68, 68, 0.15)' : '#fee2e2';
           ctx.strokeStyle = 'rgba(239, 68, 68, 0.95)';
         } else if (selectedNode?.id === node.id) {
-          ctx.fillStyle = darkMode ? 'rgba(13, 148, 136, 0.15)' : '#e0f2fe';
-          ctx.strokeStyle = 'rgba(13, 148, 136, 0.95)';
+          ctx.fillStyle = darkMode ? 'rgba(13, 148, 136, 0.15)' : '#dbeafe';
+          ctx.strokeStyle = '#2563eb';
         } else {
-          ctx.fillStyle = darkMode ? 'rgba(15, 23, 42, 0.95)' : '#f1f5f9';
-          ctx.strokeStyle = darkMode ? 'rgba(51, 65, 85, 0.8)' : '#475569';
+          ctx.fillStyle = darkMode ? 'rgba(15, 23, 42, 0.95)' : '#eef2ff';
+          ctx.strokeStyle = darkMode ? 'rgba(51, 65, 85, 0.8)' : '#818cf8';
         }
         ctx.lineWidth = 1.5;
         ctx.fill();
@@ -826,12 +826,12 @@ print("Performance visualization report saved as 'performance_report.png'.")
         ctx.restore();
 
         // Node Title text
-        ctx.fillStyle = darkMode ? '#f8fafc' : '#0f172a';
+        ctx.fillStyle = darkMode ? '#f8fafc' : '#1e1b4b';
         ctx.font = `bold ${Math.max(8, Math.round(9 * node.scale))}px var(--font-outfit)`;
         ctx.fillText(node.label, rx + 8 * node.scale, ry + 18 * node.scale);
 
         // Node Type text
-        ctx.fillStyle = darkMode ? '#94a3b8' : '#475569';
+        ctx.fillStyle = darkMode ? '#94a3b8' : '#4f46e5';
         ctx.font = `bold ${Math.max(6, Math.round(7 * node.scale))}px var(--font-jakarta)`;
         ctx.fillText(node.type.toUpperCase(), rx + 8 * node.scale, ry + 32 * node.scale);
 
@@ -855,9 +855,9 @@ print("Performance visualization report saved as 'performance_report.png'.")
           ctx.fill();
           ctx.fillStyle = '#0d9488';
         } else {
-          ctx.fillStyle = darkMode ? 'rgba(51, 65, 85, 0.3)' : '#e2e8f0';
+          ctx.fillStyle = darkMode ? 'rgba(51, 65, 85, 0.3)' : '#c7d2fe';
           ctx.fill();
-          ctx.fillStyle = darkMode ? '#94a3b8' : '#334155';
+          ctx.fillStyle = darkMode ? '#94a3b8' : '#3730a3';
         }
 
         ctx.font = `bold ${Math.max(6, Math.round(6.5 * node.scale))}px var(--font-jakarta)`;
