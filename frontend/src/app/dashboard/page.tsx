@@ -379,7 +379,7 @@ print("Performance visualization report saved as 'performance_report.png'.")
     const r = getCorrelation(edaXColumn, edaYColumn);
 
     // Draw background grids
-    ctx.strokeStyle = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+    ctx.strokeStyle = darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.12)';
     ctx.lineWidth = 1;
     for (let i = 40; i < w; i += 40) {
        ctx.beginPath();
@@ -1779,10 +1779,7 @@ print("Performance visualization report saved as 'performance_report.png'.")
                       className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing touch-none select-none block" 
                     />
 
-                    {/* 3D Space Coordinates overlay helper */}
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-slate-500/20 font-bold tracking-widest text-[9px] pointer-events-none select-none uppercase font-mono border border-slate-900/10 px-4 py-2 rounded-2xl">
-                      Drag to rotate 3D node network
-                    </div>
+
 
                     {/* Canvas Floating Control Bar (Add / Connect buttons inside Canvas space!) */}
                     <div className={`absolute bottom-5 right-5 p-2 rounded-xl border flex gap-1.5 items-center ${
