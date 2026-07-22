@@ -2,7 +2,7 @@
 
 @import "tailwindcss";
 
-@variant dark (&:where(.dark, .dark *));
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
   --font-outfit: 'Outfit', sans-serif;
