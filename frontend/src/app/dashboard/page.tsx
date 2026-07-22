@@ -806,19 +806,19 @@ print("Performance visualization report saved as 'performance_report.png'.")
         ctx.beginPath();
         ctx.roundRect(rx, ry, width, height, 10 * node.scale);
         
-        // Dynamic fills depending on status
+        // Dynamic solid fills depending on status for high contrast visibility in light mode
         if (status === 'Success') {
-          ctx.fillStyle = darkMode ? 'rgba(16, 185, 129, 0.15)' : 'rgba(16, 185, 129, 0.1)';
-          ctx.strokeStyle = 'rgba(16, 185, 129, 0.8)';
+          ctx.fillStyle = darkMode ? 'rgba(16, 185, 129, 0.15)' : '#ecfdf5';
+          ctx.strokeStyle = 'rgba(16, 185, 129, 0.85)';
         } else if (status === 'Failed') {
-          ctx.fillStyle = darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.1)';
-          ctx.strokeStyle = 'rgba(239, 68, 68, 0.8)';
+          ctx.fillStyle = darkMode ? 'rgba(239, 68, 68, 0.15)' : '#fef2f2';
+          ctx.strokeStyle = 'rgba(239, 68, 68, 0.85)';
         } else if (selectedNode?.id === node.id) {
-          ctx.fillStyle = darkMode ? 'rgba(13, 148, 136, 0.15)' : 'rgba(13, 148, 136, 0.08)';
+          ctx.fillStyle = darkMode ? 'rgba(13, 148, 136, 0.15)' : '#f0fdfa';
           ctx.strokeStyle = 'rgba(13, 148, 136, 0.9)';
         } else {
-          ctx.fillStyle = darkMode ? 'rgba(15, 23, 42, 0.9)' : 'rgba(255, 255, 255, 0.9)';
-          ctx.strokeStyle = darkMode ? 'rgba(51, 65, 85, 0.8)' : 'rgba(226, 232, 240, 0.8)';
+          ctx.fillStyle = darkMode ? 'rgba(15, 23, 42, 0.95)' : '#ffffff';
+          ctx.strokeStyle = darkMode ? 'rgba(51, 65, 85, 0.8)' : '#94a3b8';
         }
         ctx.lineWidth = 1.5;
         ctx.fill();
@@ -831,7 +831,7 @@ print("Performance visualization report saved as 'performance_report.png'.")
         ctx.fillText(node.label, rx + 8 * node.scale, ry + 18 * node.scale);
 
         // Node Type text
-        ctx.fillStyle = darkMode ? '#94a3b8' : '#64748b';
+        ctx.fillStyle = darkMode ? '#94a3b8' : '#475569';
         ctx.font = `bold ${Math.max(6, Math.round(7 * node.scale))}px var(--font-jakarta)`;
         ctx.fillText(node.type.toUpperCase(), rx + 8 * node.scale, ry + 32 * node.scale);
 
@@ -855,9 +855,9 @@ print("Performance visualization report saved as 'performance_report.png'.")
           ctx.fill();
           ctx.fillStyle = '#0d9488';
         } else {
-          ctx.fillStyle = darkMode ? 'rgba(51, 65, 85, 0.3)' : 'rgba(226, 232, 240, 0.5)';
+          ctx.fillStyle = darkMode ? 'rgba(51, 65, 85, 0.3)' : '#e2e8f0';
           ctx.fill();
-          ctx.fillStyle = darkMode ? '#94a3b8' : '#64748b';
+          ctx.fillStyle = darkMode ? '#94a3b8' : '#334155';
         }
 
         ctx.font = `bold ${Math.max(6, Math.round(6.5 * node.scale))}px var(--font-jakarta)`;
