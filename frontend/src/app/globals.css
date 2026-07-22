@@ -14,6 +14,7 @@
   --bg-secondary: 0 0% 100%;
   --bg-tertiary: 215 15% 95%;
   --border-primary: 214 32% 91%;
+  --grid-line-color: 215 15% 82%;
   --text-primary: 222 47% 11%;
   --text-secondary: 215 16% 47%;
   --text-muted: 215 16% 65%;
@@ -32,6 +33,7 @@
   --bg-secondary: 222 47% 7%;
   --bg-tertiary: 223 47% 11%;
   --border-primary: 223 47% 14%;
+  --grid-line-color: 223 47% 16%;
   --text-primary: 210 40% 98%;
   --text-secondary: 215 20% 65%;
   --text-muted: 217 19% 45%;
@@ -84,8 +86,8 @@ h1, h2, h3, h4, h5, h6 {
 .grid-bg {
   background-size: 24px 24px;
   background-image: 
-    linear-gradient(to right, hsl(var(--border-primary) / 0.75) 1px, transparent 1px),
-    linear-gradient(to bottom, hsl(var(--border-primary) / 0.75) 1px, transparent 1px);
+    linear-gradient(to right, hsl(var(--grid-line-color)) 1.2px, transparent 1.2px),
+    linear-gradient(to bottom, hsl(var(--grid-line-color)) 1.2px, transparent 1.2px);
 }
 
 .radial-glow {
