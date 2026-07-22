@@ -82,7 +82,7 @@ export default function DashboardPage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const angleX = useRef<number>(-0.3);
   const angleY = useRef<number>(0.4);
-  const [spinSpeed, setSpinSpeed] = useState<'off' | 'slow' | 'fast'>('slow');
+  const [spinSpeed, setSpinSpeed] = useState<'off' | 'slow' | 'fast'>('fast');
   const isDragging = useRef<boolean>(false);
   const startMouse = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const animationFrameId = useRef<number | null>(null);
