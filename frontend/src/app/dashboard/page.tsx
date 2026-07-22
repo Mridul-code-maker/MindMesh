@@ -1447,17 +1447,15 @@ print("Performance visualization report saved as 'performance_report.png'.")
               className={`flex items-center gap-1.5 px-2.5 h-8.5 rounded-lg border text-[10px] font-bold select-none cursor-help ${
                 darkMode ? 'border-slate-800 bg-slate-900' : 'border-slate-200 bg-slate-50'
               }`}
-              title={socketConnected ? 'WebSocket sync channel is active and secure.' : 'WebSocket disconnected. Retrying...'}
+              title={socketConnected ? 'WebSocket sync channel is active and secure.' : 'Local sandbox simulation engine is active.'}
             >
               <span className={`h-1.5 w-1.5 rounded-full ${
-                socketConnected ? 'bg-emerald-500 shadow-sm shadow-emerald-500/50' : 'bg-amber-500 animate-pulse'
+                socketConnected ? 'bg-emerald-500 shadow-sm shadow-emerald-500/50' : 'bg-teal-500 shadow-sm shadow-teal-500/50'
               }`} />
-              <span className={`${
-                socketConnected 
-                  ? (darkMode ? 'text-slate-400' : 'text-slate-650') 
-                  : 'text-amber-500 font-black animate-pulse'
+              <span className={`font-bold ${
+                darkMode ? 'text-slate-300' : 'text-slate-700'
               }`}>
-                {socketConnected ? 'Sync Active' : 'Offline'}
+                {socketConnected ? 'Sync Active' : 'Local Sandbox'}
               </span>
             </div>
 
