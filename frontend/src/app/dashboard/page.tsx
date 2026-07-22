@@ -806,19 +806,22 @@ print("Performance visualization report saved as 'performance_report.png'.")
         ctx.beginPath();
         ctx.roundRect(rx, ry, width, height, 10 * node.scale);
         
-        // Dynamic solid fills depending on status for high contrast visibility in light mode
+        // Solid fills & borders: rich charcoal theme in light mode, dynamic in dark mode
         if (status === 'Success') {
-          ctx.fillStyle = darkMode ? 'rgba(16, 185, 129, 0.15)' : '#d1fae5';
-          ctx.strokeStyle = 'rgba(16, 185, 129, 0.95)';
+          ctx.fillStyle = darkMode ? 'rgba(16, 185, 129, 0.15)' : '#27272a';
+          ctx.strokeStyle = '#10b981';
         } else if (status === 'Failed') {
-          ctx.fillStyle = darkMode ? 'rgba(239, 68, 68, 0.15)' : '#fee2e2';
-          ctx.strokeStyle = 'rgba(239, 68, 68, 0.95)';
+          ctx.fillStyle = darkMode ? 'rgba(239, 68, 68, 0.15)' : '#27272a';
+          ctx.strokeStyle = '#ef4444';
+        } else if (status === 'Running') {
+          ctx.fillStyle = darkMode ? 'rgba(13, 148, 136, 0.15)' : '#27272a';
+          ctx.strokeStyle = '#f59e0b';
         } else if (selectedNode?.id === node.id) {
-          ctx.fillStyle = darkMode ? 'rgba(13, 148, 136, 0.15)' : '#dbeafe';
-          ctx.strokeStyle = '#2563eb';
+          ctx.fillStyle = darkMode ? 'rgba(13, 148, 136, 0.15)' : '#27272a';
+          ctx.strokeStyle = '#38bdf8';
         } else {
-          ctx.fillStyle = darkMode ? 'rgba(15, 23, 42, 0.95)' : '#eef2ff';
-          ctx.strokeStyle = darkMode ? 'rgba(51, 65, 85, 0.8)' : '#818cf8';
+          ctx.fillStyle = darkMode ? 'rgba(15, 23, 42, 0.95)' : '#27272a';
+          ctx.strokeStyle = darkMode ? 'rgba(51, 65, 85, 0.8)' : '#38bdf8';
         }
         ctx.lineWidth = 1.5;
         ctx.fill();
@@ -826,12 +829,12 @@ print("Performance visualization report saved as 'performance_report.png'.")
         ctx.restore();
 
         // Node Title text
-        ctx.fillStyle = darkMode ? '#f8fafc' : '#1e1b4b';
+        ctx.fillStyle = darkMode ? '#f8fafc' : '#f8fafc';
         ctx.font = `bold ${Math.max(8, Math.round(9 * node.scale))}px var(--font-outfit)`;
         ctx.fillText(node.label, rx + 8 * node.scale, ry + 18 * node.scale);
 
         // Node Type text
-        ctx.fillStyle = darkMode ? '#94a3b8' : '#4f46e5';
+        ctx.fillStyle = darkMode ? '#94a3b8' : '#38bdf8';
         ctx.font = `bold ${Math.max(6, Math.round(7 * node.scale))}px var(--font-jakarta)`;
         ctx.fillText(node.type.toUpperCase(), rx + 8 * node.scale, ry + 32 * node.scale);
 
@@ -851,13 +854,13 @@ print("Performance visualization report saved as 'performance_report.png'.")
           ctx.fill();
           ctx.fillStyle = '#ef4444';
         } else if (status === 'Running') {
-          ctx.fillStyle = 'rgba(13, 148, 136, 0.15)';
+          ctx.fillStyle = 'rgba(245, 158, 11, 0.15)';
           ctx.fill();
-          ctx.fillStyle = '#0d9488';
+          ctx.fillStyle = '#f59e0b';
         } else {
-          ctx.fillStyle = darkMode ? 'rgba(51, 65, 85, 0.3)' : '#c7d2fe';
+          ctx.fillStyle = darkMode ? 'rgba(51, 65, 85, 0.3)' : 'rgba(255, 255, 255, 0.1)';
           ctx.fill();
-          ctx.fillStyle = darkMode ? '#94a3b8' : '#3730a3';
+          ctx.fillStyle = darkMode ? '#94a3b8' : '#38bdf8';
         }
 
         ctx.font = `bold ${Math.max(6, Math.round(6.5 * node.scale))}px var(--font-jakarta)`;
