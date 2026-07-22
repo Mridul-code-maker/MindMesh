@@ -72,10 +72,10 @@ async function main() {
 
   // Seed default pipeline
   const defaultNodes = [
-    { id: 'node-1', type: 'Ingest', label: 'CSV Data Upload', x: 60, y: 150, properties: { datasetId: dataset.id } },
-    { id: 'node-2', type: 'Preprocess', label: 'Drop Empty Rows', x: 230, y: 150, properties: { dropNulls: true, normalize: true } },
-    { id: 'node-3', type: 'AIModel', label: 'Random Forest AI Predictor', x: 400, y: 150, properties: { modelType: 'RandomForest' } },
-    { id: 'node-4', type: 'Output', label: 'Dynamic SVG Analytics Chart', x: 570, y: 150, properties: { chartType: 'Line' } }
+    { id: 'node-1', type: 'Ingest', label: 'CSV Data Upload', x: 60, y: 110, properties: { datasetId: dataset.id } },
+    { id: 'node-2', type: 'Preprocess', label: 'Drop Empty Rows', x: 230, y: 190, properties: { dropNulls: true, normalize: true } },
+    { id: 'node-3', type: 'AIModel', label: 'Random Forest AI Predictor', x: 400, y: 110, properties: { modelType: 'RandomForest' } },
+    { id: 'node-4', type: 'Output', label: 'Dynamic SVG Analytics Chart', x: 570, y: 190, properties: { chartType: 'Line' } }
   ];
 
   const defaultEdges = [

@@ -671,6 +671,43 @@ print("Performance visualization report saved as 'performance_report.png'.")
         };
       });
 
+      // Apply 2D anti-overlap collision resolution to prevent overlapping nodes on screen
+      for (let iter = 0; iter < 8; iter++) {
+        for (let i = 0; i < projectedNodes.length; i++) {
+          for (let j = i + 1; j < projectedNodes.length; j++) {
+            const n1 = projectedNodes[i];
+            const n2 = projectedNodes[j];
+
+            const w1 = 120 * n1.scale;
+            const h1 = 55 * n1.scale;
+            const w2 = 120 * n2.scale;
+            const h2 = 55 * n2.scale;
+
+            const dx = n2.screenX - n1.screenX;
+            const dy = n2.screenY - n1.screenY;
+            const minDistX = (w1 + w2) / 2 + 25; // minimum horizontal gap
+            const minDistY = (h1 + h2) / 2 + 18; // minimum vertical gap
+
+            if (Math.abs(dx) < minDistX && Math.abs(dy) < minDistY) {
+              // Calculate overlap depths
+              const overlapX = minDistX - Math.abs(dx);
+              const overlapY = minDistY - Math.abs(dy);
+
+              // Push in the direction that requires less movement to resolve
+              if (overlapX < overlapY) {
+                const pushX = overlapX * (dx === 0 ? 1 : Math.sign(dx));
+                n1.screenX -= pushX * 0.5;
+                n2.screenX += pushX * 0.5;
+              } else {
+                const pushY = overlapY * (dy === 0 ? 1 : Math.sign(dy));
+                n1.screenY -= pushY * 0.5;
+                n2.screenY += pushY * 0.5;
+              }
+            }
+          }
+        }
+      }
+
       // 2. Draw connections (edges)
       activeEdges.forEach(edge => {
         const source = projectedNodes.find(n => n.id === edge.source);
