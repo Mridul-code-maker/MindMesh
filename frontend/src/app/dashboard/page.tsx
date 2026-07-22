@@ -907,6 +907,9 @@ print("Performance visualization report saved as 'performance_report.png'.")
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
     const dx = e.clientX - startMouse.current.x;
     const dy = e.clientY - startMouse.current.y;
 
@@ -922,15 +925,31 @@ print("Performance visualization report saved as 'performance_report.png'.")
         const clampedCurrentX = Math.max(-260, Math.min(260, currentX));
         const clampedCurrentY = Math.max(-180, Math.min(180, currentY));
 
-        const newX = Math.max(-260, Math.min(260, clampedCurrentX + dx * 1.0));
-        const newY = Math.max(-180, Math.min(180, clampedCurrentY + dy * 1.0));
+        // Smooth delta calculation based on camera zoom and rotation
+        const fov = 350;
+        const widthFactor = Math.max(0.4, Math.min(1.0, canvas.width / 900));
+        const scale = (fov / (fov + 30)) * cameraZoom.current * widthFactor;
+
+        // Convert screen pixel delta to 3D coordinate space delta
+        const dx3d = dx / (scale || 1);
+        const dy3d = dy / (scale || 1);
+
+        // Inverse rotate the delta to align dragging with rotated camera perspective
+        const cosY = Math.cos(-angleY.current);
+        const sinY = Math.sin(-angleY.current);
+        const cosX = Math.cos(-angleX.current);
+        const sinX = Math.sin(-angleX.current);
+
+        const newX = Math.max(-260, Math.min(260, clampedCurrentX + (dx3d * cosY - dy3d * sinY) * 0.7));
+        const newY = Math.max(-180, Math.min(180, clampedCurrentY + (dy3d * cosX + dx3d * sinX) * 0.7));
         
         // Optimistic UI update in the store (persist = false to avoid flood api calls)
         updateNodePosition(node.id, newX, newY, false);
       }
     } else if (isDragging.current) {
-      angleY.current += dx * 0.006;
-      angleX.current += dy * 0.006;
+      // Halve the sensitivity (from 0.006 to 0.003) for premium, high-fidelity rotation control
+      angleY.current += dx * 0.003;
+      angleX.current += dy * 0.003;
     }
 
     startMouse.current = { x: e.clientX, y: e.clientY };
