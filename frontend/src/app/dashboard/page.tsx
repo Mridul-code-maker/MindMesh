@@ -1414,7 +1414,9 @@ print("Performance visualization report saved as 'performance_report.png'.")
         <div className={`p-4 border-t ${darkMode ? 'border-slate-900 bg-slate-950/20' : 'border-slate-200 bg-slate-50/50'}`}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <div className="h-7 w-7 rounded-full bg-teal-500/20 flex items-center justify-center text-teal-400">
+              <div className={`h-7 w-7 rounded-full flex items-center justify-center ${
+                darkMode ? 'bg-teal-500/20 text-teal-400' : 'bg-teal-50 text-teal-650'
+              }`}>
                 <UserIcon size={14} />
               </div>
               <div className="truncate w-32">
@@ -1438,7 +1440,11 @@ print("Performance visualization report saved as 'performance_report.png'.")
               logout();
               router.push('/login');
             }}
-            className="w-full py-2 rounded-lg bg-red-950/20 hover:bg-red-950/40 text-red-500 text-[10px] font-bold tracking-wide flex items-center justify-center gap-2 border border-red-900/30 transition-all cursor-pointer"
+            className={`w-full py-2 rounded-lg text-[10px] font-bold tracking-wide flex items-center justify-center gap-2 border transition-all cursor-pointer ${
+              darkMode 
+                ? 'bg-red-950/20 hover:bg-red-950/40 text-red-500 border-red-900/30' 
+                : 'bg-red-50 hover:bg-red-100 text-red-600 border-red-200'
+            }`}
           >
             <LogOut size={12} />
             <span>Sign Out</span>
@@ -1546,7 +1552,9 @@ print("Performance visualization report saved as 'performance_report.png'.")
                     <div className={`border rounded-xl font-mono text-[9px] p-3 space-y-1.5 animate-in fade-in duration-200 ${
                       darkMode ? 'border-slate-900 bg-slate-950 text-slate-300' : 'border-slate-200 bg-slate-100 text-slate-700'
                     }`}>
-                      <div className="flex items-center gap-1.5 text-teal-400 font-black uppercase text-[8px] tracking-wider border-b border-slate-900 pb-1 mb-1.5">
+                      <div className={`flex items-center gap-1.5 font-black uppercase text-[8px] tracking-wider border-b pb-1 mb-1.5 ${
+                        darkMode ? 'text-teal-400 border-slate-900' : 'text-teal-700 border-slate-200'
+                      }`}>
                         <Terminal size={10} />
                         WebSocket Pipeline Logger
                       </div>
@@ -1668,7 +1676,9 @@ print("Performance visualization report saved as 'performance_report.png'.")
                     <div className={`absolute top-5 left-5 p-3 rounded-xl border font-mono text-[9px] space-y-1 select-none pointer-events-none ${
                       darkMode ? 'border-slate-800 bg-slate-900/80 text-slate-350' : 'border-slate-205 bg-white/80 text-slate-600'
                     } shadow-md backdrop-blur-md z-10 hidden sm:block animate-in fade-in duration-300`}>
-                      <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-teal-400 border-b border-slate-800 pb-1 mb-1.5">
+                      <div className={`flex items-center gap-1.5 font-bold uppercase tracking-wider border-b pb-1 mb-1.5 ${
+                        darkMode ? 'text-teal-400 border-slate-800' : 'text-teal-750 border-slate-200'
+                      }`}>
                         <Activity size={10} className="animate-pulse" />
                         SYSTEM STATUS: ONLINE
                       </div>
@@ -1833,7 +1843,11 @@ print("Performance visualization report saved as 'performance_report.png'.")
                               setSelectedNode(null);
                             }
                           }}
-                          className="px-2 py-1 bg-red-950/40 border border-red-900/30 text-red-400 hover:bg-red-900/40 hover:text-white rounded-lg flex items-center gap-1 cursor-pointer transition-all"
+                          className={`px-2 py-1 border rounded-lg flex items-center gap-1 cursor-pointer transition-all ${
+                            darkMode 
+                              ? 'bg-red-950/40 border-red-900/30 text-red-400 hover:bg-red-900/40 hover:text-white' 
+                              : 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100'
+                          }`}
                         >
                           <Trash2 size={10} />
                           <span>Delete Node</span>
@@ -1864,7 +1878,9 @@ print("Performance visualization report saved as 'performance_report.png'.")
                       </div>
                       
                       {runs.length > 0 && runs[0].status === 'Success' && (
-                        <span className="mt-2 md:mt-0 text-[8px] bg-emerald-950/40 text-emerald-400 px-3 py-1 rounded-full font-black border border-emerald-500/20 uppercase tracking-widest">
+                        <span className={`mt-2 md:mt-0 text-[8px] px-3 py-1 rounded-full font-black border uppercase tracking-widest ${
+                          darkMode ? 'bg-emerald-950/40 text-emerald-400 border-emerald-500/20' : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        }`}>
                           ⚡ Champion Model: XGBoost Regressor
                         </span>
                       )}
@@ -1876,7 +1892,7 @@ print("Performance visualization report saved as 'performance_report.png'.")
                         <div className="p-4 rounded-full bg-slate-900/50 border border-slate-800 text-slate-500">
                           <Activity size={32} className="opacity-40 animate-pulse" />
                         </div>
-                        <h4 className="text-xs font-bold text-slate-350">No Benchmark Execution Logs</h4>
+                        <h4 className={`text-xs font-bold ${darkMode ? 'text-slate-350' : 'text-slate-650'}`}>No Benchmark Execution Logs</h4>
                         <p className="text-[10px] text-slate-500 max-w-sm">
                           Please ingest a dataset and execute the active pipeline. Once complete, full accuracy model leaderboards will compile here.
                         </p>
@@ -1891,7 +1907,7 @@ print("Performance visualization report saved as 'performance_report.png'.")
                             darkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-205'
                           }`}>
                             <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Best R² Score</span>
-                            <span className="text-lg font-black text-emerald-400 mt-1 block">0.890</span>
+                            <span className={`text-lg font-black mt-1 block ${darkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>0.890</span>
                             <span className="text-[8px] text-slate-500">XGBoost Gradient Boosting</span>
                           </div>
 
@@ -1899,7 +1915,7 @@ print("Performance visualization report saved as 'performance_report.png'.")
                             darkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-205'
                           }`}>
                             <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Lowest MSE Loss</span>
-                            <span className="text-lg font-black text-teal-400 mt-1 block">14.15</span>
+                            <span className={`text-lg font-black mt-1 block ${darkMode ? 'text-teal-400' : 'text-teal-700'}`}>14.15</span>
                             <span className="text-[8px] text-slate-500">Error boundary deviation limit</span>
                           </div>
 
@@ -1907,7 +1923,7 @@ print("Performance visualization report saved as 'performance_report.png'.")
                             darkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-205'
                           }`}>
                             <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Fit Duration</span>
-                            <span className="text-lg font-black text-indigo-400 mt-1 block">
+                            <span className={`text-lg font-black mt-1 block ${darkMode ? 'text-indigo-400' : 'text-indigo-700'}`}>
                               {runs[0].duration ? `${(runs[0].duration / 1000).toFixed(2)}s` : '4.5s'}
                             </span>
                             <span className="text-[8px] text-slate-500">Parallelized training cycles</span>
@@ -1932,45 +1948,50 @@ print("Performance visualization report saved as 'performance_report.png'.")
                                   <th className="p-3">Complexity Status</th>
                                 </tr>
                               </thead>
-                              <tbody className="divide-y divide-slate-800 font-medium">
+                              <tbody className={`divide-y font-medium ${darkMode ? 'divide-slate-800' : 'divide-slate-200'}`}>
                                 {/* XGBoost */}
                                 <tr className={darkMode ? 'hover:bg-slate-900/20 text-slate-200' : 'hover:bg-slate-50 text-slate-800'}>
-                                  <td className="p-3 text-emerald-400 font-black">#1</td>
-                                  <td className="p-3 font-bold flex items-center gap-1.5">🚀 XGBoost Regressor <span className="text-[8px] bg-emerald-950/40 text-emerald-400 border border-emerald-500/20 px-1 py-0.2 rounded font-black">Champion</span></td>
-                                  <td className="p-3 text-right text-emerald-400 font-black">0.890</td>
-                                  <td className="p-3 text-right text-slate-400">14.15</td>
-                                  <td className="p-3 text-right text-slate-400">1.2s</td>
-                                  <td className="p-3 text-slate-400 text-[9px]">100 Trees (Depth 6)</td>
+                                  <td className={`p-3 font-black ${darkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>#1</td>
+                                  <td className="p-3 font-bold flex items-center gap-1.5">
+                                    🚀 XGBoost Regressor 
+                                    <span className={`text-[8px] border px-1 py-0.2 rounded font-black ${
+                                      darkMode ? 'bg-emerald-950/40 text-emerald-400 border-emerald-500/20' : 'bg-emerald-50 text-emerald-750 border-emerald-200'
+                                    }`}>Champion</span>
+                                  </td>
+                                  <td className={`p-3 text-right font-black ${darkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>0.890</td>
+                                  <td className={`p-3 text-right ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>14.15</td>
+                                  <td className={`p-3 text-right ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>1.2s</td>
+                                  <td className={`p-3 text-[9px] ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>100 Trees (Depth 6)</td>
                                 </tr>
 
                                 {/* Random Forest */}
                                 <tr className={darkMode ? 'hover:bg-slate-900/20 text-slate-200' : 'hover:bg-slate-50 text-slate-800'}>
-                                  <td className="p-3 text-teal-400 font-black">#2</td>
+                                  <td className={`p-3 font-black ${darkMode ? 'text-teal-400' : 'text-teal-700'}`}>#2</td>
                                   <td className="p-3 font-bold">🌲 Random Forest Regressor</td>
-                                  <td className="p-3 text-right text-teal-400 font-black">0.842</td>
-                                  <td className="p-3 text-right text-slate-400">18.42</td>
-                                  <td className="p-3 text-right text-slate-400">1.8s</td>
-                                  <td className="p-3 text-slate-400 text-[9px]">200 Trees (Depth 10)</td>
+                                  <td className={`p-3 text-right font-black ${darkMode ? 'text-teal-400' : 'text-teal-700'}`}>0.842</td>
+                                  <td className={`p-3 text-right ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>18.42</td>
+                                  <td className={`p-3 text-right ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>1.8s</td>
+                                  <td className={`p-3 text-[9px] ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>200 Trees (Depth 10)</td>
                                 </tr>
 
                                 {/* SVM */}
                                 <tr className={darkMode ? 'hover:bg-slate-900/20 text-slate-200' : 'hover:bg-slate-50 text-slate-800'}>
-                                  <td className="p-3 text-purple-400 font-black">#3</td>
+                                  <td className={`p-3 font-black ${darkMode ? 'text-purple-400' : 'text-purple-700'}`}>#3</td>
                                   <td className="p-3 font-bold">🔮 SVM (Radial SVR)</td>
-                                  <td className="p-3 text-right text-purple-400 font-black">0.781</td>
-                                  <td className="p-3 text-right text-slate-400">24.89</td>
-                                  <td className="p-3 text-right text-slate-400">0.4s</td>
-                                  <td className="p-3 text-slate-400 text-[9px]">Radial Basis (RBF) Kernel</td>
+                                  <td className={`p-3 text-right font-black ${darkMode ? 'text-purple-400' : 'text-purple-700'}`}>0.781</td>
+                                  <td className={`p-3 text-right ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>24.89</td>
+                                  <td className={`p-3 text-right ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>0.4s</td>
+                                  <td className={`p-3 text-[9px] ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>Radial Basis (RBF) Kernel</td>
                                 </tr>
 
                                 {/* Linear Regression */}
                                 <tr className={darkMode ? 'hover:bg-slate-900/20 text-slate-200' : 'hover:bg-slate-50 text-slate-800'}>
-                                  <td className="p-3 text-indigo-400 font-black">#4</td>
+                                  <td className={`p-3 font-black ${darkMode ? 'text-indigo-400' : 'text-indigo-700'}`}>#4</td>
                                   <td className="p-3 font-bold">📈 Linear Regression Model</td>
-                                  <td className="p-3 text-right text-indigo-400 font-black">0.725</td>
-                                  <td className="p-3 text-right text-slate-400">28.12</td>
-                                  <td className="p-3 text-right text-slate-400">0.1s</td>
-                                  <td className="p-3 text-slate-400 text-[9px]">Ordinary Least Squares (OLS)</td>
+                                  <td className={`p-3 text-right font-black ${darkMode ? 'text-indigo-400' : 'text-indigo-700'}`}>0.725</td>
+                                  <td className={`p-3 text-right ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>28.12</td>
+                                  <td className={`p-3 text-right ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>0.1s</td>
+                                  <td className={`p-3 text-[9px] ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>Ordinary Least Squares (OLS)</td>
                                 </tr>
                               </tbody>
                             </table>
@@ -1981,45 +2002,47 @@ print("Performance visualization report saved as 'performance_report.png'.")
                         <div className={`p-5 rounded-xl border ${
                           darkMode ? 'bg-slate-900/30 border-slate-850' : 'bg-white border-slate-200'
                         } space-y-4`}>
-                          <h4 className="text-[10px] text-slate-350 font-black uppercase tracking-wider">Visual Benchmark Accuracy Plot</h4>
+                          <h4 className={`text-[10px] font-black uppercase tracking-wider ${
+                            darkMode ? 'text-slate-350' : 'text-slate-500'
+                          }`}>Visual Benchmark Accuracy Plot</h4>
                           <div className="space-y-3">
                             {/* XGBoost progress bar */}
                             <div className="space-y-1 text-[9px]">
                               <div className="flex justify-between font-bold">
-                                <span>🚀 XGBoost Regressor (Champion)</span>
-                                <span className="text-emerald-400 font-black">R² = 0.890</span>
+                                <span className={darkMode ? 'text-slate-200' : 'text-slate-800'}>🚀 XGBoost Regressor (Champion)</span>
+                                <span className={`font-black ${darkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>R² = 0.890</span>
                               </div>
-                              <div className="w-full bg-slate-850 rounded-full h-2.5 overflow-hidden">
+                              <div className={`w-full rounded-full h-2.5 overflow-hidden ${darkMode ? 'bg-slate-850' : 'bg-slate-100'}`}>
                                 <div className="bg-gradient-to-r from-emerald-500 to-teal-400 h-2.5 rounded-full animate-pulse" style={{ width: '89%' }} />
                               </div>
                             </div>
                             {/* RF progress bar */}
                             <div className="space-y-1 text-[9px]">
                               <div className="flex justify-between font-bold">
-                                <span>🌲 Random Forest Regressor</span>
-                                <span className="text-teal-400 font-black">R² = 0.842</span>
+                                <span className={darkMode ? 'text-slate-200' : 'text-slate-800'}>🌲 Random Forest Regressor</span>
+                                <span className={`font-black ${darkMode ? 'text-teal-400' : 'text-teal-650'}`}>R² = 0.842</span>
                               </div>
-                              <div className="w-full bg-slate-855 rounded-full h-2.5 overflow-hidden">
+                              <div className={`w-full rounded-full h-2.5 overflow-hidden ${darkMode ? 'bg-slate-800' : 'bg-slate-100'}`}>
                                 <div className="bg-teal-500 h-2.5 rounded-full" style={{ width: '84%' }} />
                               </div>
                             </div>
                             {/* SVM progress bar */}
                             <div className="space-y-1 text-[9px]">
                               <div className="flex justify-between font-bold">
-                                <span>🔮 SVM (Radial SVR)</span>
-                                <span className="text-purple-400 font-black">R² = 0.781</span>
+                                <span className={darkMode ? 'text-slate-200' : 'text-slate-800'}>🔮 SVM (Radial SVR)</span>
+                                <span className={`font-black ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>R² = 0.781</span>
                               </div>
-                              <div className="w-full bg-slate-855 rounded-full h-2.5 overflow-hidden">
+                              <div className={`w-full rounded-full h-2.5 overflow-hidden ${darkMode ? 'bg-slate-800' : 'bg-slate-100'}`}>
                                 <div className="bg-purple-500 h-2.5 rounded-full" style={{ width: '78%' }} />
                               </div>
                             </div>
                             {/* LR progress bar */}
                             <div className="space-y-1 text-[9px]">
                               <div className="flex justify-between font-bold">
-                                <span>📈 Linear Regression Model</span>
-                                <span className="text-indigo-400 font-black">R² = 0.725</span>
+                                <span className={darkMode ? 'text-slate-200' : 'text-slate-800'}>📈 Linear Regression Model</span>
+                                <span className={`font-black ${darkMode ? 'text-indigo-400' : 'text-indigo-650'}`}>R² = 0.725</span>
                               </div>
-                              <div className="w-full bg-slate-855 rounded-full h-2.5 overflow-hidden">
+                              <div className={`w-full rounded-full h-2.5 overflow-hidden ${darkMode ? 'bg-slate-800' : 'bg-slate-100'}`}>
                                 <div className="bg-indigo-500 h-2.5 rounded-full" style={{ width: '72%' }} />
                               </div>
                             </div>
@@ -2032,7 +2055,9 @@ print("Performance visualization report saved as 'performance_report.png'.")
                         } space-y-4`}>
                           <div className="flex justify-between items-center">
                             <div>
-                              <h4 className="text-[10px] text-slate-350 font-black uppercase tracking-wider flex items-center gap-1.5">
+                              <h4 className={`text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 ${
+                                darkMode ? 'text-slate-350' : 'text-slate-500'
+                              }`}>
                                 <Network size={12} className="text-indigo-400" />
                                 3D Hyperparameter Search Space Visualizer
                               </h4>
@@ -2040,7 +2065,9 @@ print("Performance visualization report saved as 'performance_report.png'.")
                                 Drag to rotate Bayesian optimization search trials. Points color maps to accuracy (green is high, violet is low).
                               </p>
                             </div>
-                            <span className="px-2 py-0.5 text-[7px] font-bold bg-indigo-950/40 text-indigo-400 border border-indigo-500/20 rounded-full uppercase tracking-wider">
+                            <span className={`px-2 py-0.5 text-[7px] font-bold border rounded-full uppercase tracking-wider ${
+                              darkMode ? 'bg-indigo-950/40 text-indigo-400 border-indigo-500/20' : 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                            }`}>
                               Bayesian Optimization
                             </span>
                           </div>
@@ -2291,7 +2318,9 @@ print("Performance visualization report saved as 'performance_report.png'.")
                                 navigator.clipboard.writeText(getGeneratedPythonCode(selectedNode));
                                 alert("Python code copied to clipboard successfully!");
                               }}
-                              className="px-2 py-0.5 rounded border border-teal-800 hover:bg-teal-900/30 text-teal-400 text-[8px] font-bold cursor-pointer transition-all"
+                             className={`px-2 py-0.5 rounded border text-[8px] font-bold cursor-pointer transition-all ${
+                               darkMode ? 'border-teal-800 hover:bg-teal-900/30 text-teal-400' : 'border-teal-300 hover:bg-teal-50 text-teal-700'
+                             }`}
                             >
                               Copy Code
                             </button>
@@ -2303,9 +2332,11 @@ print("Performance visualization report saved as 'performance_report.png'.")
                       )}
                     </div>
 
-                    <div className="p-3 bg-teal-950/20 border border-teal-900/30 rounded-xl text-[10px] text-teal-400 leading-normal">
+                    <div className={`p-3 rounded-xl border text-[10px] leading-normal ${
+                      darkMode ? 'bg-teal-950/20 border-teal-900/30 text-teal-400' : 'bg-teal-50 border-teal-200 text-teal-700'
+                    }`}>
                       <strong>Node Status:</strong> {activeStepStatuses[selectedNode.id] || 'Idle'}
-                      <p className="mt-1 text-slate-400 text-[9px]">Configure node fields and click execute. Status reflects current step execution phase.</p>
+                      <p className={`mt-1 text-[9px] ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Configure node fields and click execute. Status reflects current step execution phase.</p>
                     </div>
                   </div>
                 )}
@@ -2639,12 +2670,18 @@ print("Performance visualization report saved as 'performance_report.png'.")
                               </div>
 
                               {/* Imputation recommendations and preprocessing tips */}
-                              <div className="p-4 rounded-xl border border-teal-950/40 bg-teal-950/15 text-teal-400 space-y-2">
-                                <h4 className="font-extrabold text-[10px] text-teal-400 uppercase tracking-wider flex items-center gap-1">
+                              <div className={`p-4 rounded-xl border space-y-2 ${
+                                darkMode ? 'border-teal-950/40 bg-teal-950/15 text-teal-400' : 'border-teal-200 bg-teal-50 text-teal-700'
+                              }`}>
+                                <h4 className={`font-extrabold text-[10px] uppercase tracking-wider flex items-center gap-1 ${
+                                  darkMode ? 'text-teal-400' : 'text-teal-700'
+                                }`}>
                                   <Activity size={10} className="animate-pulse" />
                                   Agent Preprocessing Diagnostics
                                 </h4>
-                                <div className="text-[10px] text-slate-400 space-y-1.5 leading-normal">
+                                <div className={`text-[10px] space-y-1.5 leading-normal ${
+                                  darkMode ? 'text-slate-400' : 'text-slate-600'
+                                }`}>
                                   {viewingDataset.missingPct && parseFloat(viewingDataset.missingPct) > 0 ? (
                                     <p>⚠️ <strong>Missing Cells Detected ({viewingDataset.missingPct}%):</strong> We suggest using an <em>Imputer</em> node with &apos;Median&apos; strategy to replace nulls before model training.</p>
                                   ) : (
