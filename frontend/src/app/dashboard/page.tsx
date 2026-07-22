@@ -1028,6 +1028,43 @@ print("Performance visualization report saved as 'performance_report.png'.")
     }
   };
 
+  const autoAlignPipeline = () => {
+    // Group active nodes by their categories
+    const columns: Record<string, string[]> = {
+      'Ingest': [],
+      'Preprocess': [],
+      'AIModel': [],
+      'Output': []
+    };
+
+    activeNodes.forEach(node => {
+      const type = node.type;
+      if (columns[type]) {
+        columns[type].push(node.id);
+      } else {
+        columns['Preprocess'].push(node.id);
+      }
+    });
+
+    const colOrder = ['Ingest', 'Preprocess', 'AIModel', 'Output'];
+
+    // Assign clean, spaced coordinates based on type
+    colOrder.forEach((type, colIdx) => {
+      const nodeIds = columns[type];
+      const N = nodeIds.length;
+      if (N === 0) return;
+
+      // X coordinate column positions (-240, -80, 80, 240)
+      const x = (colIdx - 1.5) * 160;
+
+      nodeIds.forEach((id, idx) => {
+        // Y coordinate spaced evenly vertically around 0
+        const y = (idx - (N - 1) / 2) * 85; 
+        updateNodePosition(id, x, y, true);
+      });
+    });
+  };
+
   const handleDeployModel = async (runId: string) => {
     setDeployingRunId(runId);
     const success = await deployModel(runId);
@@ -1877,6 +1914,17 @@ print("Performance visualization report saved as 'performance_report.png'.")
                         }`}
                       >
                         {isConnectingMode ? 'Click Target Node...' : '🔗 Connect Nodes'}
+                      </button>
+
+                      {/* Auto-Align Pipeline layout */}
+                      <button
+                        onClick={autoAlignPipeline}
+                        className={`px-2.5 py-1 rounded-lg border cursor-pointer transition-all flex items-center gap-1 ${
+                          darkMode ? 'border-slate-800 hover:bg-slate-800 text-slate-300' : 'border-slate-200 hover:bg-slate-100 text-slate-600'
+                        }`}
+                        title="Instantly auto-arrange nodes into a neat, non-overlapping workflow diagram"
+                      >
+                        <span>📐 Auto-Align</span>
                       </button>
 
                       {selectedNode && (
