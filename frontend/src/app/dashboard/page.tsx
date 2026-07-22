@@ -1598,7 +1598,7 @@ print("Performance visualization report saved as 'performance_report.png'.")
                     className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
                       rightPanelTab === 'graph'
                         ? 'bg-teal-600 text-white shadow-md font-black'
-                        : 'text-slate-400 hover:text-slate-205'
+                        : 'text-slate-400 hover:text-slate-200'
                     }`}
                   >
                     <Network size={11} />
@@ -1608,8 +1608,8 @@ print("Performance visualization report saved as 'performance_report.png'.")
                     onClick={() => setRightPanelTab('evaluation')}
                     className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
                       rightPanelTab === 'evaluation'
-                        ? 'bg-teal-650 text-white shadow-md font-black'
-                        : 'text-slate-400 hover:text-slate-205'
+                        ? 'bg-teal-600 text-white shadow-md font-black'
+                        : 'text-slate-400 hover:text-slate-200'
                     }`}
                   >
                     <Activity size={11} />
@@ -1734,7 +1734,7 @@ print("Performance visualization report saved as 'performance_report.png'.")
                       
                       {/* Add node dropdown menu toggle */}
                       <div className="relative group">
-                        <button className="px-2.5 py-1 bg-teal-650 hover:bg-teal-600 text-white rounded-lg flex items-center gap-1 cursor-pointer transition-all shadow-sm">
+                        <button className="px-2.5 py-1 bg-teal-600 hover:bg-teal-500 text-white rounded-lg flex items-center gap-1 cursor-pointer transition-all shadow-sm">
                           <span>+ Add Node</span>
                         </button>
                         
@@ -2368,8 +2368,8 @@ print("Performance visualization report saved as 'performance_report.png'.")
                             onClick={() => setDatasetViewTab('profile')}
                             className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer ${
                               datasetViewTab === 'profile'
-                                ? 'bg-teal-650 text-white shadow-md'
-                                : 'text-slate-400 hover:text-slate-350'
+                                ? 'bg-teal-600 text-white shadow-md'
+                                : 'text-slate-400 hover:text-slate-300'
                             }`}
                           >
                             <Database size={10} />
@@ -2388,8 +2388,8 @@ print("Performance visualization report saved as 'performance_report.png'.")
                             }}
                             className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer ${
                               datasetViewTab === 'eda'
-                                ? 'bg-teal-650 text-white shadow-md'
-                                : 'text-slate-400 hover:text-slate-350'
+                                ? 'bg-teal-600 text-white shadow-md'
+                                : 'text-slate-400 hover:text-slate-300'
                             }`}
                           >
                             <BarChart3 size={10} />
@@ -3001,17 +3001,17 @@ print("Performance visualization report saved as 'performance_report.png'.")
 
                             {/* Dynamic API Snippets Switcher tabs */}
                             <div className={`p-3.5 rounded-xl border space-y-2.5 ${
-                              darkMode ? 'bg-slate-950/40 border-slate-850' : 'bg-slate-50 border-slate-205'
+                              darkMode ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50 border-slate-200'
                             }`}>
-                              <div className="flex justify-between items-center border-b border-slate-850 pb-1.5">
+                              <div className="flex justify-between items-center border-b border-slate-800 pb-1.5">
                                 <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">REST API Clients</span>
-                                <div className="flex bg-slate-950 p-0.5 rounded-lg border border-slate-850 text-[8px] font-bold">
+                                <div className="flex bg-slate-950 p-0.5 rounded-lg border border-slate-800 text-[8px] font-bold">
                                   {(['curl', 'python', 'js'] as const).map((tab) => (
                                     <button
                                       key={tab}
                                       onClick={() => setSandboxSnippetTab(tab)}
                                       className={`px-2 py-0.5 rounded uppercase cursor-pointer transition-colors ${
-                                        sandboxSnippetTab === tab ? 'bg-teal-650 text-white' : 'text-slate-500 hover:text-slate-400'
+                                        sandboxSnippetTab === tab ? 'bg-teal-600 text-white' : 'text-slate-500 hover:text-slate-400'
                                       }`}
                                     >
                                       {tab}
