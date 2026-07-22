@@ -304,6 +304,17 @@ print("Performance visualization report saved as 'performance_report.png'.")
     }
   }, []);
 
+  // Sync HTML element class with darkMode state for Tailwind custom variants
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [darkMode]);
+
   // Fetch initial data
   useEffect(() => {
     initAuth();
