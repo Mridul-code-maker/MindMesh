@@ -2311,7 +2311,7 @@ print("Performance visualization report saved as 'performance_report.png'.")
                 )}
 
                 {/* Node Property panel / Slide-out drawer on click */}
-                {selectedNode && (
+                {selectedNode ? (
                   <div className={`w-full lg:w-80 border-t lg:border-t-0 lg:border-l p-5 flex flex-col justify-between shrink-0 z-10 animate-in slide-in-from-right duration-250 ${
                     darkMode 
                       ? 'border-slate-800 bg-slate-950/95 backdrop-blur-md text-slate-100' 
@@ -2456,7 +2456,7 @@ print("Performance visualization report saved as 'performance_report.png'.")
                                     step="10"
                                     value={selectedNode.properties.estimators || 100}
                                     onChange={(e) => saveNodeProperty(selectedNode.id, 'estimators', parseInt(e.target.value))}
-                                    className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-teal-500"
+                                    className="w-full accent-teal-500"
                                   />
                                 </div>
                               )}
@@ -2470,18 +2470,18 @@ print("Performance visualization report saved as 'performance_report.png'.")
                                   </div>
                                   <input 
                                     type="range" 
-                                    min="2" 
+                                    min="1" 
                                     max="30" 
                                     step="1"
                                     value={selectedNode.properties.maxDepth || 10}
                                     onChange={(e) => saveNodeProperty(selectedNode.id, 'maxDepth', parseInt(e.target.value))}
-                                    className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-teal-500"
+                                    className="w-full accent-teal-500"
                                   />
                                 </div>
                               )}
 
                               {/* Hyperparameter learning rate / C regularization */}
-                              {(selectedNode.properties.modelType === 'XGBoost' || selectedNode.properties.modelType === 'SVM') && (
+                              {selectedNode.properties.modelType === 'XGBoost' && (
                                 <div>
                                   <div className="flex justify-between text-[9px] font-bold uppercase mb-1">
                                     <span className="text-slate-400">Learning Rate (Eta)</span>
@@ -2545,6 +2545,70 @@ print("Performance visualization report saved as 'performance_report.png'.")
                     }`}>
                       <strong>Node Status:</strong> {activeStepStatuses[selectedNode.id] || 'Idle'}
                       <p className={`mt-1 text-[9px] ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Configure node fields and click execute. Status reflects current step execution phase.</p>
+                    </div>
+                  </div>
+                ) : (
+                  /* Concept Guide Panel when no node is selected! */
+                  <div className={`w-full lg:w-80 border-t lg:border-t-0 lg:border-l p-5 flex flex-col justify-between shrink-0 z-10 animate-in slide-in-from-right duration-250 ${
+                    darkMode 
+                      ? 'border-slate-800 bg-slate-950/95 backdrop-blur-md text-slate-100' 
+                      : 'border-slate-205 bg-white/95 backdrop-blur-md text-slate-900'
+                  }`}>
+                    <div>
+                      <div className={`flex items-center justify-between border-b pb-3 mb-4 ${
+                        darkMode ? 'border-slate-800/85' : 'border-slate-200'
+                      }`}>
+                        <h4 className="font-extrabold text-[10px] uppercase tracking-wider text-teal-500 flex items-center gap-1.5">
+                          <HelpCircle size={12} />
+                          📚 AutoML Concept Guide
+                        </h4>
+                      </div>
+
+                      <div className="space-y-4 max-h-[380px] overflow-y-auto pr-1">
+                        
+                        <div className="space-y-1">
+                          <h5 className="font-bold text-[10px] text-teal-500 dark:text-teal-400 uppercase tracking-wide">1. 🌌 3D DAG Pipeline Graph</h5>
+                          <p className={`text-[9px] leading-relaxed ${darkMode ? 'text-slate-400' : 'text-slate-650'}`}>
+                            Visualizes node connections in a 3D perspective layout. Nodes form a Directed Acyclic Graph (DAG) for processing workflows.
+                          </p>
+                          <div className={`p-2 rounded bg-slate-100 dark:bg-slate-950/40 text-[8px] font-mono leading-normal border ${darkMode ? 'border-slate-850' : 'border-slate-200'}`}>
+                            <strong>X-Axis (Flow):</strong> Stage index.<br/>
+                            <strong>Y-Axis (Spacing):</strong> Layer separation.
+                          </div>
+                        </div>
+
+                        <div className="space-y-1">
+                          <h5 className="font-bold text-[10px] text-teal-500 dark:text-teal-400 uppercase tracking-wide">2. ⚡ Collision Spring Physics</h5>
+                          <p className={`text-[9px] leading-relaxed ${darkMode ? 'text-slate-400' : 'text-slate-650'}`}>
+                            Uses Hooke's Law repulsion vector (k=0.05) to push nodes smoothly away on close coordinate intersections to prevent overlapping.
+                          </p>
+                        </div>
+
+                        <div className="space-y-1">
+                          <h5 className="font-bold text-[10px] text-teal-500 dark:text-teal-400 uppercase tracking-wide">3. 📊 AutoML Model Evaluation</h5>
+                          <p className={`text-[9px] leading-relaxed ${darkMode ? 'text-slate-400' : 'text-slate-650'}`}>
+                            Trains regression algorithms (XGBoost, Random Forest, linear models) and selects the best champion using R² metrics.
+                          </p>
+                          <div className={`p-2 rounded bg-slate-100 dark:bg-slate-950/40 text-[8px] font-mono leading-normal border ${darkMode ? 'border-slate-850' : 'border-slate-200'}`}>
+                            <strong>R² Score:</strong> Goodness of fit (0 to 1).<br/>
+                            <strong>MSE:</strong> Model squared error bounds.
+                          </div>
+                        </div>
+
+                        <div className="space-y-1">
+                          <h5 className="font-bold text-[10px] text-teal-500 dark:text-teal-400 uppercase tracking-wide">4. 🎯 3D Hyperparameter Space</h5>
+                          <p className={`text-[9px] leading-relaxed ${darkMode ? 'text-slate-400' : 'text-slate-650'}`}>
+                            Plots grid search optimization trials in 3D (learning rate, depth, trees). High accuracy scores cluster as green targets, failed trials show as violet.
+                          </p>
+                        </div>
+
+                      </div>
+                    </div>
+
+                    <div className={`p-3.5 rounded-xl border text-[9px] leading-normal mt-4 ${
+                      darkMode ? 'bg-teal-950/20 border-teal-900/30 text-teal-400' : 'bg-teal-50 border-teal-200 text-teal-700'
+                    }`}>
+                      <p>💡 <strong>Quick Hint:</strong> Click on any node on the canvas to configure its specific hyperparameters and generate executable Python code.</p>
                     </div>
                   </div>
                 )}
