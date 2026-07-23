@@ -83,6 +83,7 @@ export default function DashboardPage() {
   const angleX = useRef<number>(-0.3);
   const angleY = useRef<number>(0.4);
   const [spinSpeed, setSpinSpeed] = useState<'off' | 'slow' | 'fast'>('fast');
+  const [physicsEnabled, setPhysicsEnabled] = useState<boolean>(true);
   const isDragging = useRef<boolean>(false);
   const startMouse = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const animationFrameId = useRef<number | null>(null);
@@ -683,52 +684,54 @@ print("Performance visualization report saved as 'performance_report.png'.")
       });
 
       // Apply 2D anti-overlap collision resolution to prevent overlapping nodes on screen
-      for (let iter = 0; iter < 4; iter++) {
-        for (let i = 0; i < projectedNodes.length; i++) {
-          for (let j = i + 1; j < projectedNodes.length; j++) {
-            const n1 = projectedNodes[i];
-            const n2 = projectedNodes[j];
+      if (physicsEnabled) {
+        for (let iter = 0; iter < 4; iter++) {
+          for (let i = 0; i < projectedNodes.length; i++) {
+            for (let j = i + 1; j < projectedNodes.length; j++) {
+              const n1 = projectedNodes[i];
+              const n2 = projectedNodes[j];
 
-            const w1 = 135 * n1.scale;
-            const h1 = 62 * n1.scale;
-            const w2 = 135 * n2.scale;
-            const h2 = 62 * n2.scale;
+              const w1 = 135 * n1.scale;
+              const h1 = 62 * n1.scale;
+              const w2 = 135 * n2.scale;
+              const h2 = 62 * n2.scale;
 
-            const dx = n2.screenX - n1.screenX;
-            const dy = n2.screenY - n1.screenY;
-            const dist = Math.sqrt(dx * dx + dy * dy) || 0.1;
+              const dx = n2.screenX - n1.screenX;
+              const dy = n2.screenY - n1.screenY;
+              const dist = Math.sqrt(dx * dx + dy * dy) || 0.1;
 
-            const minDistX = (w1 + w2) / 2 + 25; // minimum horizontal gap
-            const minDistY = (h1 + h2) / 2 + 18; // minimum vertical gap
+              const minDistX = (w1 + w2) / 2 + 25; // minimum horizontal gap
+              const minDistY = (h1 + h2) / 2 + 18; // minimum vertical gap
 
-            // Interpolate target minimum distance based on the relative angle to avoid visual jumps
-            const angle = Math.abs(Math.atan2(dy, dx));
-            const targetDist = minDistX * Math.cos(angle) + minDistY * Math.sin(angle);
+              // Interpolate target minimum distance based on the relative angle to avoid visual jumps
+              const angle = Math.abs(Math.atan2(dy, dx));
+              const targetDist = minDistX * Math.cos(angle) + minDistY * Math.sin(angle);
 
-            if (dist < targetDist) {
-              const overlap = targetDist - dist;
-              // k=0.05 resolves overlap gradually over frames for liquid-smooth sliding instead of snapping
-              const k = 0.05;
-              const pushX = (dx / dist) * overlap * k;
-              const pushY = (dy / dist) * overlap * k;
+              if (dist < targetDist) {
+                const overlap = targetDist - dist;
+                // k=0.05 resolves overlap gradually over frames for liquid-smooth sliding instead of snapping
+                const k = 0.05;
+                const pushX = (dx / dist) * overlap * k;
+                const pushY = (dy / dist) * overlap * k;
 
-              const n1Dragged = draggedNodeId.current === n1.id;
-              const n2Dragged = draggedNodeId.current === n2.id;
+                const n1Dragged = draggedNodeId.current === n1.id;
+                const n2Dragged = draggedNodeId.current === n2.id;
 
-              if (n1Dragged && !n2Dragged) {
-                // n1 is held by cursor: push n2 away with full force
-                n2.screenX += pushX * 2;
-                n2.screenY += pushY * 2;
-              } else if (n2Dragged && !n1Dragged) {
-                // n2 is held by cursor: push n1 away with full force
-                n1.screenX -= pushX * 2;
-                n1.screenY -= pushY * 2;
-              } else if (!n1Dragged && !n2Dragged) {
-                // Neither is dragged: distribute force equally
-                n1.screenX -= pushX;
-                n1.screenY -= pushY;
-                n2.screenX += pushX;
-                n2.screenY += pushY;
+                if (n1Dragged && !n2Dragged) {
+                  // n1 is held by cursor: push n2 away with full force
+                  n2.screenX += pushX * 2;
+                  n2.screenY += pushY * 2;
+                } else if (n2Dragged && !n1Dragged) {
+                  // n2 is held by cursor: push n1 away with full force
+                  n1.screenX -= pushX * 2;
+                  n1.screenY -= pushY * 2;
+                } else if (!n1Dragged && !n2Dragged) {
+                  // Neither is dragged: distribute force equally
+                  n1.screenX -= pushX;
+                  n1.screenY -= pushY;
+                  n2.screenX += pushX;
+                  n2.screenY += pushY;
+                }
               }
             }
           }
@@ -1925,6 +1928,19 @@ print("Performance visualization report saved as 'performance_report.png'.")
                         title="Instantly auto-arrange nodes into a neat, non-overlapping workflow diagram"
                       >
                         <span>📐 Auto-Align</span>
+                      </button>
+
+                      {/* Physics Engine Toggle */}
+                      <button
+                        onClick={() => setPhysicsEnabled(!physicsEnabled)}
+                        className={`px-2.5 py-1 rounded-lg border cursor-pointer transition-all flex items-center gap-1 ${
+                          physicsEnabled 
+                            ? 'bg-teal-600 border-teal-500 text-white' 
+                            : `${darkMode ? 'border-slate-800 text-slate-400 hover:bg-slate-800' : 'border-slate-200 text-slate-500 hover:bg-slate-100'}`
+                        }`}
+                        title="Toggle dynamic spring-force collision physics"
+                      >
+                        <span>⚡ Physics: {physicsEnabled ? 'ON' : 'OFF'}</span>
                       </button>
 
                       {selectedNode && (

@@ -12,6 +12,7 @@ MindMesh is a next-generation web application designed to democratize machine le
 * **Liquid Spring-Force Physics:** Implements Hooke's Law physics calculations (`F = -k * x`) to ensure nodes repel each other gently and slide smoothly during collisions without rigid snapping.
 * **Drag-Aware Position Locking:** Dynamically maps 2D mouse coordinates back to 3D space based on camera angle and zoom. Dragged nodes stay locked directly under the mouse pointer while neighboring nodes dynamically slide out of the way.
 * **📐 1-Click Auto-Align:** Automatically structures disorganized layouts into a neat, non-overlapping workflow DAG (Directed Acyclic Graph) sorted into structured columns (`Ingest` ➔ `Preprocess` ➔ `AIModel` ➔ `Output`).
+* **⚡ Physics Engine Toggle:** Dynamically toggle the custom spring-force physics engine ON/OFF in real-time, allowing users to manually float nodes freely or enforce dynamic collision boundaries.
 
 ### 2. 📊 Interactive AutoML Benchmarks Leaderboard
 * **Multi-Algorithm Evaluation:** Evaluates multiple regression models (including XGBoost, Decision Trees, and Linear Regressors) on the active dataset constraints.
