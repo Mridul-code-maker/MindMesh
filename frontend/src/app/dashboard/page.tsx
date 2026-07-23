@@ -8,7 +8,7 @@ import {
   Activity, Play, FileText, Database, ShieldAlert, ArrowRight,
   Terminal, Trash2, Download, LogOut, Sun, Moon, Settings as SettingsIcon,
   HelpCircle, User as UserIcon, UploadCloud, ChevronRight, CheckCircle2,
-  FileSpreadsheet, Brain, BarChart3, Edit3, Network, RefreshCw, X, MessageSquare
+  FileSpreadsheet, Brain, BarChart3, Edit3, Network, RefreshCw, X, MessageSquare, Menu
 } from 'lucide-react';
 import { api, API_BASE } from '@/store/authStore';
 
@@ -34,6 +34,7 @@ export default function DashboardPage() {
 
   const [activeTab, setActiveTab] = useState<'playground' | 'datasets' | 'runs' | 'settings' | 'deployments'>('playground');
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
   // Graph Connect mode states
   const [isConnectingMode, setIsConnectingMode] = useState(false);
@@ -1417,8 +1418,96 @@ print("Performance visualization report saved as 'performance_report.png'.")
 
   return (
     <div className={`flex flex-1 ${darkMode ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'} font-sans`}>
+      {/* Mobile Sidebar Navigation Drawer Overlay */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 flex md:hidden bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div 
+            className={`w-64 h-full border-r ${
+              darkMode ? 'border-slate-950 bg-slate-950' : 'border-slate-200 bg-white'
+            } flex flex-col justify-between p-4 animate-in slide-in-from-left duration-250`}
+          >
+            <div>
+              {/* Header Branding & Close Button */}
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800/20 mb-4">
+                <div className="flex items-center gap-2">
+                  <Activity className="text-teal-500" size={18} />
+                  <span className={`font-extrabold text-sm ${darkMode ? 'text-white' : 'text-slate-900'}`}>MindMesh</span>
+                </div>
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-1 rounded-lg border border-slate-800 text-slate-500 hover:text-slate-350 cursor-pointer"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+
+              {/* Navigation Items */}
+              <nav className="space-y-1">
+                {[
+                  { id: 'playground', label: 'Agent Playground', icon: Network },
+                  { id: 'datasets', label: 'Dataset Ingestion', icon: Database },
+                  { id: 'runs', label: 'Executions History', icon: FileText },
+                  { id: 'deployments', label: 'MLOps Deployments', icon: Activity },
+                  { id: 'settings', label: 'Workspace Settings', icon: SettingsIcon },
+                ].map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setActiveTab(item.id as any);
+                        setMobileMenuOpen(false);
+                      }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border-l-2 border-teal-500'
+                          : `${darkMode ? 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'}`
+                      }`}
+                    >
+                      <Icon size={16} />
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+
+            {/* Profile & Footer Sign Out */}
+            <div className="pt-4 border-t border-slate-800/20 space-y-3">
+              <div className="flex items-center gap-2">
+                <div className={`h-7 w-7 rounded-full flex items-center justify-center ${
+                  darkMode ? 'bg-teal-500/20 text-teal-400' : 'bg-teal-50 text-teal-650'
+                }`}>
+                  <UserIcon size={14} />
+                </div>
+                <div className="truncate w-36">
+                  <div className={`font-extrabold text-[10px] truncate ${darkMode ? 'text-slate-200' : 'text-slate-900'}`}>{user?.name}</div>
+                  <div className={`text-[8px] font-semibold ${darkMode ? 'text-slate-400' : 'text-slate-650'}`}>{user?.role}</div>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  logout();
+                  router.push('/login');
+                  setMobileMenuOpen(false);
+                }}
+                className={`w-full py-2 rounded-lg text-[10px] font-bold tracking-wide flex items-center justify-center gap-2 border transition-all cursor-pointer ${
+                  darkMode 
+                    ? 'bg-red-950/20 hover:bg-red-950/40 text-red-500 border-red-900/30' 
+                    : 'bg-red-50 hover:bg-red-100 text-red-600 border-red-200'
+                }`}
+              >
+                <LogOut size={12} />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 1. Left Vertical Navigation Sidebar */}
-      <aside className={`w-64 border-r ${darkMode ? 'border-slate-900 bg-slate-900/60' : 'border-slate-200 bg-white'} backdrop-blur-md flex flex-col justify-between shrink-0`}>
+      <aside className={`hidden md:flex w-64 border-r ${darkMode ? 'border-slate-900 bg-slate-900/60' : 'border-slate-200 bg-white'} backdrop-blur-md flex-col justify-between shrink-0`}>
         <div>
           {/* Header Branding */}
           <div className={`p-6 border-b flex items-center gap-3 ${darkMode ? 'border-slate-900/80' : 'border-slate-200'}`}>
@@ -1547,12 +1636,23 @@ print("Performance visualization report saved as 'performance_report.png'.")
           darkMode ? 'border-slate-900 bg-slate-950/80' : 'border-slate-200 bg-white/80'
         } backdrop-blur-md px-6 flex items-center justify-between shrink-0`}>
           <div className="flex items-center gap-2.5">
-            <h3 className={`font-extrabold text-sm tracking-tight ${darkMode ? 'text-slate-100' : 'text-slate-900'}`}>
-              {activeTab === 'playground' && `MindMesh Sandbox Playground — ${activePipeline?.name || 'Workspace'}`}
-              {activeTab === 'datasets' && 'Data Ingestion & profiling Registry'}
-              {activeTab === 'runs' && 'Historical Pipeline Executions Log'}
-              {activeTab === 'settings' && 'Workspace Configuration Console'}
-              {activeTab === 'deployments' && 'MLOps Serving Console'}
+            {/* Mobile Menu Hamburger Button */}
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className={`md:hidden p-1.5 rounded-lg border mr-1.5 cursor-pointer transition-colors ${
+                darkMode ? 'border-slate-800 hover:bg-slate-900 text-slate-400 hover:text-white' : 'border-slate-200 hover:bg-slate-100 text-slate-600 hover:text-slate-900'
+              }`}
+              title="Open Navigation Menu"
+            >
+              <Menu size={16} />
+            </button>
+
+            <h3 className={`font-extrabold text-xs sm:text-sm tracking-tight ${darkMode ? 'text-slate-100' : 'text-slate-900'}`}>
+              {activeTab === 'playground' && `MindMesh Sandbox — ${activePipeline?.name || 'Workspace'}`}
+              {activeTab === 'datasets' && 'Dataset Registry'}
+              {activeTab === 'runs' && 'Executions History'}
+              {activeTab === 'settings' && 'Settings'}
+              {activeTab === 'deployments' && 'MLOps Serving'}
             </h3>
           </div>
 
@@ -2577,7 +2677,7 @@ print("Performance visualization report saved as 'performance_report.png'.")
                       {datasetViewTab === 'profile' ? (
                         <>
                           {/* Stat Metrics Cards */}
-                          <div className="grid grid-cols-4 gap-4">
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                             <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80">
                               <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Row count</span>
                               <span className="text-xl font-black text-slate-900 dark:text-white">{viewingDataset.rowCount}</span>
