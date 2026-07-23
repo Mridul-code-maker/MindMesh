@@ -1860,7 +1860,7 @@ print("Performance visualization report saved as 'performance_report.png'.")
                     <div className="absolute bottom-3 right-3 h-3 w-3 border-b-2 border-r-2 border-teal-500/60 pointer-events-none" />
 
                     {/* 1. Sci-Fi Telemetry HUD (Top Left Overlay) */}
-                    <div className={`absolute top-5 left-5 p-3 rounded-xl border font-mono text-[9px] space-y-1 select-none pointer-events-none ${
+                    <div className={`absolute top-16 left-5 p-3 rounded-xl border font-mono text-[9px] space-y-1 select-none pointer-events-none ${
                       darkMode ? 'border-slate-800 bg-slate-900/80 text-slate-350' : 'border-slate-205 bg-white/80 text-slate-600'
                     } shadow-md backdrop-blur-md z-10 hidden sm:block animate-in fade-in duration-300`}>
                       <div className={`flex items-center gap-1.5 font-bold uppercase tracking-wider border-b pb-1 mb-1.5 ${
@@ -1884,7 +1884,7 @@ print("Performance visualization report saved as 'performance_report.png'.")
                     </div>
 
                     {/* 2. Camera Controls & Auto-spin Dashboard (Top Right Overlay) */}
-                    <div className={`absolute top-5 right-5 p-2 rounded-xl border flex gap-1.5 items-center ${
+                    <div className={`absolute top-16 right-5 p-2 rounded-xl border flex gap-1.5 items-center ${
                       darkMode ? 'border-slate-800 bg-slate-900/80 text-slate-300' : 'border-slate-205 bg-white/80 text-slate-700'
                     } shadow-md backdrop-blur-md z-10 animate-in fade-in duration-300`}>
                       
