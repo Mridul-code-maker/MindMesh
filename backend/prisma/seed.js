@@ -18,7 +18,7 @@ async function main() {
   if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir);
   }
-  const csvPath = path.join(uploadsDir, 'sample_house_prices.csv');
+  const csvPath = path.join(uploadsDir, 'Boston.csv');
   
   let csvContent = 'id,house_size,rooms,distance_miles,price_k\n';
   for (let i = 1; i <= 500; i++) {
@@ -29,7 +29,7 @@ async function main() {
     csvContent += `${i},${size},${rooms},${distance},${price}\n`;
   }
   fs.writeFileSync(csvPath, csvContent);
-  console.log('Generated a 500-row sample_house_prices.csv in uploads.');
+  console.log('Generated a 500-row Boston.csv in uploads.');
 
   // Create pre-seeded accounts with realistic names
   const passwordHash = await bcrypt.hash('Mridul123!', 10);
@@ -55,8 +55,8 @@ async function main() {
   // Pre-register this 500-row dataset in the database
   const dataset = await prisma.dataset.create({
     data: {
-      title: 'Housing Market Ingested Dataset',
-      filename: 'sample_house_prices.csv',
+      title: 'Boston Housing Prices',
+      filename: 'Boston.csv',
       rowCount: 500,
       columns: JSON.stringify([
         { name: 'id', type: 'Number' },
@@ -96,7 +96,7 @@ async function main() {
   // Seed historical pipeline runs with realistic, professional operator names
   const run1Logs = [
     { time: new Date().toISOString(), node: 'System', text: 'Initializing MindMesh Pipeline runtime engine...', type: 'info' },
-    { time: new Date().toISOString(), node: 'Ingest', text: 'Ingested dataset: "Housing Market Ingested Dataset" (500 rows loaded)', type: 'info' },
+    { time: new Date().toISOString(), node: 'Ingest', text: 'Ingested dataset: "Boston Housing Prices" (500 rows loaded)', type: 'info' },
     { time: new Date().toISOString(), node: 'Preprocess', text: 'Preprocess node completed. Dropped 0 rows.', type: 'info' },
     { time: new Date().toISOString(), node: 'AIModel', text: 'Model training successful. Accuracy = 92.4%', type: 'info' },
     { time: new Date().toISOString(), node: 'Output', text: 'Dynamic chart coordinates compiled.', type: 'info' }
