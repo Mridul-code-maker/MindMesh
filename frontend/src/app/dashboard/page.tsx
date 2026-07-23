@@ -1070,6 +1070,10 @@ print("Performance visualization report saved as 'performance_report.png'.")
   };
 
   const handleDeployModel = async (runId: string) => {
+    if (user?.role !== 'Admin') {
+      alert('🔒 Permission Denied: Only Admin accounts can deploy trained models to production serving endpoints.');
+      return;
+    }
     setDeployingRunId(runId);
     const success = await deployModel(runId);
     setDeployingRunId('');
@@ -3196,6 +3200,10 @@ print("Performance visualization report saved as 'performance_report.png'.")
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
+                                if (user?.role !== 'Admin') {
+                                  alert('🔒 Permission Denied: Only Admin accounts can suspend active production deployments.');
+                                  return;
+                                }
                                 if (confirm('Are you sure you want to suspend this serving model?')) {
                                   suspendDeployment(dep.id);
                                   if (selectedDeploymentId === dep.id) setSelectedDeploymentId('');
