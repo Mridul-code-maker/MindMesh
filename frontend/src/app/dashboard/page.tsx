@@ -1249,6 +1249,81 @@ print("Performance visualization report saved as 'performance_report.png'.")
       const aiNode = activeNodes.find(n => n.type === 'AIModel');
       const preprocessNode = activeNodes.find(n => n.type === 'Preprocess');
 
+      // AI Co-pilot: 1. Reset Workspace command
+      if (lower.includes('reset workspace') || lower.includes('clear workspace') || lower.includes('clear canvas') || lower.includes('reset canvas')) {
+        updatePipeline(activePipeline.id, undefined, [], []);
+        response = `🤖 AI Co-pilot Action: Workspace reset complete! All nodes and connections cleared from the workflow.`;
+        isCommandMatched = true;
+      }
+
+      // AI Co-pilot: 2. Auto-Align command
+      else if (lower.includes('auto-align') || lower.includes('auto align') || lower.includes('align pipeline') || lower.includes('arrange nodes')) {
+        setTimeout(() => {
+          autoAlignPipeline();
+        }, 100);
+        response = `🤖 AI Co-pilot Action: Symmetrically arranged all active nodes into sequential columns (Ingest ➔ Preprocess ➔ AIModel ➔ Output).`;
+        isCommandMatched = true;
+      }
+
+      // AI Co-pilot: 3. Toggle Physics command
+      else if (lower.includes('toggle physics') || lower.includes('physics enable') || lower.includes('physics disable')) {
+        const nextState = lower.includes('disable') ? false : lower.includes('enable') ? true : !physicsEnabled;
+        setPhysicsEnabled(nextState);
+        response = `🤖 AI Co-pilot Action: Spring-force collision engine is now **${nextState ? 'Enabled' : 'Disabled'}**!`;
+        isCommandMatched = true;
+      }
+
+      // AI Co-pilot: 4. Delete selected node command
+      else if ((lower.includes('delete node') || lower.includes('remove node') || lower.includes('delete selected')) && selectedNode) {
+        deleteNode(selectedNode.id);
+        setSelectedNode(null);
+        response = `🤖 AI Co-pilot Action: Removed selected node "${selectedNode.label}" from the workflow.`;
+        isCommandMatched = true;
+      }
+
+      // AI Co-pilot: 5. Add Node commands
+      else if (lower.includes('add') || lower.includes('insert')) {
+        const addNodeMatch = lower.match(/(ingest|preprocess|model|output|csv|filter|ai|chart|graph|svm|random forest|xgboost|linear regression)/i);
+        if (addNodeMatch) {
+          const query = addNodeMatch[1].toLowerCase();
+          let nodeType: 'Ingest' | 'Preprocess' | 'AIModel' | 'Output' = 'Ingest';
+          let label = 'Ingestion Node';
+          let props = {};
+
+          if (query === 'ingest' || query === 'csv') {
+            nodeType = 'Ingest';
+            label = 'CSV Data Ingestion';
+            props = { datasetId: datasets[0]?.id || '' };
+          } else if (query === 'preprocess' || query === 'filter') {
+            nodeType = 'Preprocess';
+            label = 'Filter Anomalies';
+            props = { dropNulls: true };
+          } else if (query === 'model' || query === 'ai' || query === 'svm' || query === 'random forest' || query === 'xgboost' || query === 'linear regression') {
+            nodeType = 'AIModel';
+            const alg = query === 'svm' ? 'SVM' : query === 'xgboost' ? 'XGBoost' : query === 'linear regression' ? 'Linear Regression' : 'Random Forest';
+            label = `${alg} Predictor`;
+            props = { modelType: alg, estimators: 100, maxDepth: 10, learningRate: 0.1 };
+          } else if (query === 'output' || query === 'chart' || query === 'graph') {
+            nodeType = 'Output';
+            label = 'Dynamic SVG Analytics Chart';
+            props = { chartType: 'Line' };
+          }
+
+          const newNodeId = Math.random().toString(36).substr(2, 9);
+          addNode({
+            id: newNodeId,
+            type: nodeType,
+            label: label,
+            x: (Math.random() - 0.5) * 150,
+            y: (Math.random() - 0.5) * 150,
+            properties: props
+          });
+
+          response = `🤖 AI Co-pilot Action: Successfully added a new ${nodeType} node ("${label}") to the 3D canvas!`;
+          isCommandMatched = true;
+        }
+      }
+
       // 2. Parse Model Selection Command
       const modelMatch = lower.match(/(?:select|set model to|use)\s+(xgboost|random forest|svm|linear regression)/i);
       if (modelMatch && aiNode) {
