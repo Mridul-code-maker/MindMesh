@@ -85,6 +85,9 @@ export default function DashboardPage() {
   const angleY = useRef<number>(0.4);
   const [spinSpeed, setSpinSpeed] = useState<'off' | 'slow' | 'fast'>('fast');
   const [physicsEnabled, setPhysicsEnabled] = useState<boolean>(true);
+  const [physicsK, setPhysicsK] = useState<number>(0.05);
+  const [minDistBuffer, setMinDistBuffer] = useState<number>(18);
+  const [enabledAlgorithms, setEnabledAlgorithms] = useState<string[]>(['XGBoost', 'Random Forest', 'SVM', 'Linear Regression']);
   const isDragging = useRef<boolean>(false);
   const startMouse = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const animationFrameId = useRef<number | null>(null);
@@ -702,7 +705,7 @@ print("Performance visualization report saved as 'performance_report.png'.")
               const dist = Math.sqrt(dx * dx + dy * dy) || 0.1;
 
               const minDistX = (w1 + w2) / 2 + 25; // minimum horizontal gap
-              const minDistY = (h1 + h2) / 2 + 18; // minimum vertical gap
+              const minDistY = (h1 + h2) / 2 + minDistBuffer; // minimum vertical gap
 
               // Interpolate target minimum distance based on the relative angle to avoid visual jumps
               const angle = Math.abs(Math.atan2(dy, dx));
@@ -710,8 +713,8 @@ print("Performance visualization report saved as 'performance_report.png'.")
 
               if (dist < targetDist) {
                 const overlap = targetDist - dist;
-                // k=0.05 resolves overlap gradually over frames for liquid-smooth sliding instead of snapping
-                const k = 0.05;
+                // Use dynamic spring constant k from workspace settings
+                const k = physicsK;
                 const pushX = (dx / dist) * overlap * k;
                 const pushY = (dy / dist) * overlap * k;
 
@@ -3524,6 +3527,81 @@ print(response.json())`}
                     >
                       {darkMode ? 'Switch to Light' : 'Switch to Dark'}
                     </button>
+                  </div>
+
+                  {/* 3D Physics Constants Configuration */}
+                  <div className={`border-b pb-4 ${darkMode ? 'border-slate-800' : 'border-slate-200'}`}>
+                    <h4 className={`text-xs font-bold mb-1 ${darkMode ? 'text-slate-100' : 'text-slate-800'}`}>3D Visualizer Physics Constants</h4>
+                    <p className="text-[10px] text-slate-400 font-medium font-sans mb-3.5">Fine-tune the mathematical physics repulsion coefficients for the real-time collision system.</p>
+                    
+                    <div className="space-y-3">
+                      <div>
+                        <div className="flex justify-between text-[10px] font-bold mb-1 font-mono">
+                          <span className={darkMode ? 'text-slate-300' : 'text-slate-700'}>Spring Constant (k Strength):</span>
+                          <span className="text-teal-400">{physicsK.toFixed(2)}</span>
+                        </div>
+                        <input 
+                          type="range" 
+                          min="0.01" 
+                          max="0.20" 
+                          step="0.01"
+                          value={physicsK}
+                          onChange={(e) => setPhysicsK(parseFloat(e.target.value))}
+                          className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-teal-500"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between text-[10px] font-bold mb-1 font-mono">
+                          <span className={darkMode ? 'text-slate-300' : 'text-slate-700'}>Node Repulsion Distance Buffer:</span>
+                          <span className="text-teal-400">{minDistBuffer}px</span>
+                        </div>
+                        <input 
+                          type="range" 
+                          min="5" 
+                          max="40" 
+                          step="1"
+                          value={minDistBuffer}
+                          onChange={(e) => setMinDistBuffer(parseInt(e.target.value))}
+                          className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-teal-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* AutoML Algorithm Search Space */}
+                  <div className={`border-b pb-4 ${darkMode ? 'border-slate-800' : 'border-slate-200'}`}>
+                    <h4 className={`text-xs font-bold mb-1 ${darkMode ? 'text-slate-100' : 'text-slate-800'}`}>AutoML Model Preferences</h4>
+                    <p className="text-[10px] text-slate-400 font-medium font-sans mb-3">Configure active algorithms permitted during validation run searches.</p>
+                    
+                    <div className="grid grid-cols-2 gap-2">
+                      {['XGBoost', 'Random Forest', 'SVM', 'Linear Regression'].map((alg) => {
+                        const isChecked = enabledAlgorithms.includes(alg);
+                        return (
+                          <label key={alg} className={`flex items-center gap-2 p-2 rounded-lg border text-[10px] font-bold cursor-pointer transition-colors ${
+                            isChecked 
+                              ? (darkMode ? 'border-teal-500/30 bg-teal-950/10 text-teal-300' : 'border-teal-300 bg-teal-55 text-teal-800')
+                              : (darkMode ? 'border-slate-800 bg-slate-900/30 text-slate-500' : 'border-slate-200 bg-slate-50 text-slate-500')
+                          }`}>
+                            <input 
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={() => {
+                                if (isChecked) {
+                                  if (enabledAlgorithms.length > 1) {
+                                    setEnabledAlgorithms(enabledAlgorithms.filter(a => a !== alg));
+                                  }
+                                } else {
+                                  setEnabledAlgorithms([...enabledAlgorithms, alg]);
+                                }
+                              }}
+                              className="w-3.5 h-3.5 rounded text-teal-500 border-slate-700 bg-slate-950 focus:ring-0 focus:ring-offset-0 accent-teal-500 mr-1.5"
+                            />
+                            {alg}
+                          </label>
+                        );
+                      })}
+                    </div>
                   </div>
 
                   {/* Account Metadata */}
